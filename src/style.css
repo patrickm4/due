@@ -1,0 +1,10 @@
+.title {
+  font-size: 66pt;
+  font-weight: 500;
+}
+.list-item {
+  font-size: 20pt;
+  font-weight: 400;
+
+  margin-left: 1em;
+}
