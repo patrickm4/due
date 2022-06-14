@@ -6,6 +6,8 @@ Today I'll do this.
 Tomorrow I'll finish that.
 Someday maybe I'll start that.
 
+Following Vue PWA guide from here https://blog.logrocket.com/building-pwa-vue/
+
 ## Project setup
 ```
 yarn install

@@ -3,6 +3,7 @@
     <div class="title">Today</div>
     <List
       :items="listOfItems"
+      @addTodo="addTodo"
     />
   </div>
 </template>
@@ -14,13 +15,17 @@ export default {
   name: 'today',
   data () {
     return {
-      listOfItems: [{
-        name: "test name"
-      }]
+      listOfItems: []
     }
   },
   components: {
     List
+  },
+  methods: {
+    addTodo (e) {
+      console.log("yeeet", e)
+      // this.listOfItems.push
+    }
   }
 }
 </script>
