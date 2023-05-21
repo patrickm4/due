@@ -5,6 +5,7 @@
             v-if="todos && todos.length"
             class="todos-container"
         >
+            <input type="checkbox" :checked="todo.checked"/>
             <div 
                 v-for="(todo, index) in todos"
                 :key="index"
