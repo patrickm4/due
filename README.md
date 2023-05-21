@@ -8,6 +8,10 @@ Someday maybe I'll start that.
 
 Following Vue PWA guide from here https://blog.logrocket.com/building-pwa-vue/
 
+## Built with
+
+- Vue 2
+
 ## Project setup
 ```
 yarn install

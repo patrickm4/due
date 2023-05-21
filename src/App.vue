@@ -1,31 +1,20 @@
-<template>
-  <div
-    id="app"
-    @mousedown="startDragging"
-    @mouseup="stopDragging"
-    @mouseleave="stopDragging"
-    @mousemove.prevent="mouseMove"
-    ref="root"
-  >
-    <div id="app-child">
-      <Today class="day-card" />
-      <Tomorrow class="day-card" />
-      <Someday class="day-card" />
-    </div>
-  </div>
+<template>  
+  <vue-scroll-snap :fullscreen="true" :horizontal="true">
+    <Day class="item" day-name="Today"></Day>
+    <Day class="item" day-name="Tomorrow"></Day>
+    <Day class="item" day-name="Someday"></Day>
+  </vue-scroll-snap>
 </template>
 
 <script>
-import Today from './components/Today.vue'
-import Tomorrow from './components/Tomorrow.vue'
-import Someday from './components/Someday.vue'
+import VueScrollSnap from "vue-scroll-snap";
+import Day from "./components/Day.vue";
 
 export default {
   name: 'App',
   components: {
-    Today,
-    Tomorrow,
-    Someday
+    Day,
+    VueScrollSnap
   },
   data () {
     return {
@@ -34,22 +23,12 @@ export default {
       scrollLeft: null
     }
   },
-  methods: {
-    startDragging (e) {
-      this.mouseDown = true
-      this.startX = e.pageX - this.$refs.root.offsetLeft
-      this.scrollLeft =  this.$refs.root.scrollLeft
-    },
-    stopDragging () {
-      this.mouseDown = false
-    },
-    mouseMove (e) {
-      if(!this.mouseDown) return
+  mounted () {
+    // get localStorage todos
+    // todays, tomorrows and somedays
+    // then pass to components
 
-      const x = e.pageX - this.$refs.root.offsetLeft
-      const scroll = x - this.startX
-      this.$refs.root.scrollLeft = this.scrollLeft - scroll
-    }
+    // for someday, decrement the timing for switching the task/goal to tomorrow, then save back to localstorage
   }
 }
 </script>
@@ -57,30 +36,10 @@ export default {
 <style>
 body {
   margin: 0;
-}
-#app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
   color: #2c3e50;
-  overflow-x: hidden;
-
-  display: inline-block;
-
-  width:100vw;
-  height:100vh;
 }
-#app-child{
-  text-align: center;
-  display: inline-block;
-  width:300vw;
-  height:100vh;
-}
-.day-card{
-  text-align: left;
-  width: 80vw;
-
-  float: left;
+h1 {
+  margin-left: 1rem;
 }
 </style>
