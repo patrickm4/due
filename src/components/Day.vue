@@ -47,28 +47,30 @@ export default {
     }
   },
   data () {
-    // get localstorage and set here?
-
     return {
-      list: [],
+      list: this.items, // initialize the passed todos
       isCreating: false,
       newTodo: ''
     }
   },
   computed: {
     todos () {
-      const filteredByDay = this.list.filter(t => t.day === this.dayName.toLowerCase())
-      return [...this.items, ...filteredByDay]
+      return this.list.filter(t => t.day === this.dayName.toLowerCase())
     }
   },
   methods: {
-    createTodo () {
-      //TODO save to locaStorage
+    createTodo () {      
       this.list.push({
         task: this.newTodo,
         checked: false,
         day: this.dayName.toLowerCase()
       })
+
+      //TODO get the localstorage first
+      // or watch this.list then get localstorage then save it back
+
+      window.localStorage.setItem('todos', JSON.stringify(this.list))
+
       this.newTodo = ''
       this.isCreating = false
     },
