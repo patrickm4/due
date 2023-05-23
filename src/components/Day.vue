@@ -7,11 +7,29 @@
             class="todos-container"
         >
             <div 
-              v-for="(todo, index) in todos"
-              :key="index"
+              v-for="todo in todos"
+              :key="todo.id"
+              @click="selectedTask = todo.id"
             >
               <input type="checkbox" :checked="todo.checked"/>
-                {{ todo.task }}
+              {{ todo.task }}
+              <div v-if="selectedTask === todo.id">
+                <button>Mark as completed</button>
+                <button v-for="otherDay in otherDays" :key="todo.id + otherDay">Do it {{ otherDay }}</button>
+                <button @click.stop="selectedTask = ''">Close</button>
+                <button @click.stop="deleteTask(todo.id)">Delete</button>
+              </div>
+              <!-- 
+                task name
+                how long ago added
+                btn: Mark as completed
+                btn: Do it {day}
+                btn: Do it {day}
+                - or -
+                Schedule for a day
+                ----
+                delete
+               -->
             </div>
         </div>
         <div v-else class="todos-container">
@@ -19,6 +37,11 @@
         </div>
         <div class="add-todo-btn">
           <span class="add-font" @click="openCreate">+</span>
+          <!-- 
+            other options
+            remove completed items
+            about
+           -->
         </div>
       </template>
       <template v-else>
@@ -32,6 +55,8 @@
 </template>
 
 <script>
+import { v4 as uuidv4 } from 'uuid';
+
 export default {
   name: 'Day',
   props: {
@@ -50,17 +75,32 @@ export default {
     return {
       list: this.items, // initialize the passed todos
       isCreating: false,
-      newTodo: ''
+      newTodo: '',
+      selectedTask: ''
     }
   },
   computed: {
     todos () {
       return this.list.filter(t => t.day === this.dayName.toLowerCase())
+    },
+    otherDays () {
+      const allDays = ['someday', 'today', 'tomorrow']
+      return allDays.filter(d => d !== this.dayName.toLowerCase())
     }
   },
   methods: {
-    createTodo () {      
+    deleteTask (id) {
+      const taskIndex = this.list.findIndex(t => t.id === id)
+      
+      if (taskIndex !== -1) {
+        this.selectedTask = ''
+        this.list.splice(taskIndex, 1)
+        window.localStorage.setItem('todos', JSON.stringify(this.list))
+      }
+    },
+    createTodo () {
       this.list.push({
+        id: `task-${uuidv4()}`,
         task: this.newTodo,
         checked: false,
         day: this.dayName.toLowerCase()
