@@ -11,13 +11,20 @@
               :key="todo.id"
               @click="selectedTask = todo.id"
             >
-              <input type="checkbox" :checked="todo.checked"/>
+              <input type="checkbox" :checked="todo.checked" @click.stop/>
               {{ todo.task }}
-              <div v-if="selectedTask === todo.id">
-                <button>Mark as completed</button>
-                <button v-for="otherDay in otherDays" :key="todo.id + otherDay">Do it {{ otherDay }}</button>
-                <button @click.stop="selectedTask = ''">Close</button>
-                <button @click.stop="deleteTask(todo.id)">Delete</button>
+              <div v-if="selectedTask === todo.id" class="task-dropdown">
+                <div class="task-dropdown-left">
+                  <button @click.stop="selectedTask = ''">Close</button>
+                </div>
+                <div class="task-dropdown-right">
+                  <button 
+                    v-for="otherDay in otherDays" 
+                    :key="todo.id + otherDay"
+                    @click="changeTaskDay(otherDay)"  
+                  >Do it {{ otherDay }}</button>
+                  <button @click.stop="deleteTask">Delete</button>
+                </div>
               </div>
               <!-- 
                 task name
@@ -88,9 +95,22 @@ export default {
       return allDays.filter(d => d !== this.dayName.toLowerCase())
     }
   },
+  // watch
   methods: {
-    deleteTask (id) {
-      const taskIndex = this.list.findIndex(t => t.id === id)
+    changeTaskDay(day) {
+      const taskIndex = this.list.findIndex(t => t.id === this.selectedTask)
+
+      if (taskIndex !== -1) {
+        this.selectedTask = ''
+        
+        let taskObj = this.list[taskIndex]
+        taskObj.day = day
+        window.localStorage.setItem('todos', JSON.stringify(this.list))
+        this.$emit('reloadCache')
+      }
+    },
+    deleteTask () {
+      const taskIndex = this.list.findIndex(t => t.id === this.selectedTask)
       
       if (taskIndex !== -1) {
         this.selectedTask = ''
@@ -125,6 +145,24 @@ export default {
 </script>
 
 <style>
+  .task-dropdown-left {
+    
+  }
+  .task-dropdown-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 1rem;
+  }
+  .task-dropdown-right > button {
+    margin-bottom: .5rem;
+  }
+  .task-dropdown{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: .5rem;
+  }
   .close-create-todo-btn {
     margin: 1rem;
   }
