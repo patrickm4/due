@@ -21,7 +21,7 @@
                   <button 
                     v-for="otherDay in otherDays" 
                     :key="todo.id + otherDay"
-                    @click="changeTaskDay(otherDay)"  
+                    @click.stop="changeTaskDay(otherDay)"  
                   >Do it {{ otherDay }}</button>
                   <button @click.stop="deleteTask">Delete</button>
                 </div>
@@ -43,6 +43,7 @@
             What to do {{ dayName.toLowerCase() }}...
         </div>
         <div class="add-todo-btn">
+          <!-- maybe dont show this if no task this day? -->
           <span class="add-font" @click="openCreate">+</span>
           <!-- 
             other options
@@ -95,7 +96,6 @@ export default {
       return allDays.filter(d => d !== this.dayName.toLowerCase())
     }
   },
-  // watch
   methods: {
     changeTaskDay(day) {
       const taskIndex = this.list.findIndex(t => t.id === this.selectedTask)
