@@ -96,17 +96,31 @@ export default {
       return allDays.filter(d => d !== this.dayName.toLowerCase())
     }
   },
+  watch: {
+    items (val) {
+      console.log("watch day", val, this.dayName)
+    }
+  },
   methods: {
     changeTaskDay(day) {
+      //TODO when task moves to another day, that day doesn't update to show task
       const taskIndex = this.list.findIndex(t => t.id === this.selectedTask)
 
       if (taskIndex !== -1) {
-        this.selectedTask = ''
+        this.list.splice(taskIndex, 1)
+        const cachedTodos = window.localStorage.getItem('todos') ? JSON.parse(window.localStorage.getItem('todos')) : ''
         
-        let taskObj = this.list[taskIndex]
-        taskObj.day = day
-        window.localStorage.setItem('todos', JSON.stringify(this.list))
-        this.$emit('reloadCache')
+        if (cachedTodos) {
+          const cachedTodoIndex = cachedTodos.findIndex(t => t.id === this.selectedTask)
+
+          cachedTodos[cachedTodoIndex].day = day
+
+          window.localStorage.setItem('todos', JSON.stringify(cachedTodos))  
+        }
+
+        this.selectedTask = ''
+        // this duplicates tasks
+        // this.$emit('reloadCache')
       }
     },
     deleteTask () {
