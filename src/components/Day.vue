@@ -119,17 +119,28 @@ export default {
       }
     },
     createTodo () {
-      this.list.push({
+      const newTodo = {
         id: `task-${uuidv4()}`,
         task: this.newTodo,
         checked: false,
         day: this.dayName.toLowerCase()
-      })
+      }
 
-      //TODO get the localstorage first
-      // or watch this.list then get localstorage then save it back
+      this.list.push(newTodo)
 
-      window.localStorage.setItem('todos', JSON.stringify(this.list))
+      const nonParsedCachedTodos = window.localStorage.getItem('todos')
+
+      if (nonParsedCachedTodos) {
+
+        const cachedTodos = JSON.parse(nonParsedCachedTodos)
+
+        cachedTodos.push(newTodo)
+        
+        window.localStorage.setItem('todos', JSON.stringify(cachedTodos))
+      } else {
+        window.localStorage.setItem('todos', JSON.stringify(this.list))
+      }
+
 
       this.newTodo = ''
       this.isCreating = false
