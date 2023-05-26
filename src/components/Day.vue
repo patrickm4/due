@@ -113,9 +113,18 @@ export default {
       const taskIndex = this.list.findIndex(t => t.id === this.selectedTask)
       
       if (taskIndex !== -1) {
-        this.selectedTask = ''
         this.list.splice(taskIndex, 1)
-        window.localStorage.setItem('todos', JSON.stringify(this.list))
+        const cachedTodos = window.localStorage.getItem('todos') ? JSON.parse(window.localStorage.getItem('todos')) : ''
+        
+        if (cachedTodos) {
+          const cachedTodoIndex = cachedTodos.findIndex(t => t.id === this.selectedTask)
+
+          cachedTodos.splice(cachedTodoIndex, 1)
+
+          window.localStorage.setItem('todos', JSON.stringify(cachedTodos))  
+        }
+
+        this.selectedTask = ''
       }
     },
     createTodo () {
@@ -128,12 +137,9 @@ export default {
 
       this.list.push(newTodo)
 
-      const nonParsedCachedTodos = window.localStorage.getItem('todos')
+      const cachedTodos = window.localStorage.getItem('todos') ? JSON.parse(window.localStorage.getItem('todos')) : ''
 
-      if (nonParsedCachedTodos) {
-
-        const cachedTodos = JSON.parse(nonParsedCachedTodos)
-
+      if (cachedTodos) {
         cachedTodos.push(newTodo)
         
         window.localStorage.setItem('todos', JSON.stringify(cachedTodos))
