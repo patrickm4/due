@@ -81,7 +81,7 @@ export default {
   },
   data () {
     return {
-      list: this.items, // initialize the passed todos
+      list: [], // initialize the passed todos
       isCreating: false,
       newTodo: '',
       selectedTask: ''
@@ -98,12 +98,11 @@ export default {
   },
   watch: {
     items (val) {
-      console.log("watch day", val, this.dayName)
+      this.list = val
     }
   },
   methods: {
     changeTaskDay(day) {
-      //TODO when task moves to another day, that day doesn't update to show task
       const taskIndex = this.list.findIndex(t => t.id === this.selectedTask)
 
       if (taskIndex !== -1) {
@@ -119,8 +118,7 @@ export default {
         }
 
         this.selectedTask = ''
-        // this duplicates tasks
-        // this.$emit('reloadCache')
+        this.$emit('reloadCache')
       }
     },
     deleteTask () {

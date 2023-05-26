@@ -36,21 +36,29 @@ export default {
       if (nonParsedTodos) {
         const todos = JSON.parse(nonParsedTodos)
 
+        let todayTs = []
+        let tomorrowTs = []
+        let somedayTs = []
+
         todos.forEach(t => {
           switch (t.day) {
             case 'today':
-              this.todayTodos.push(t)
+              todayTs.push(t)
               break
             case 'tomorrow':
-              this.tomorrowTodos.push(t)
+              tomorrowTs.push(t)
               break
             case 'someday':
-              this.somedayTodos.push(t)
+              somedayTs.push(t)
               break;
             default:
               console.log("Error: task with no day attached")
           }
         })
+
+        this.todayTodos = todayTs
+        this.tomorrowTodos = tomorrowTs
+        this.somedayTodos = somedayTs
       }
 
       // for someday, decrement the timing for switching the task/goal to tomorrow, then save back to localstorage
