@@ -18,6 +18,7 @@
                   <button @click.stop="selectedTask = ''">Close</button>
                 </div>
                 <div class="task-dropdown-right">
+                  <button @click.stop="editTask">Edit</button>
                   <button 
                     v-for="otherDay in otherDays" 
                     :key="todo.id + otherDay"
@@ -39,12 +40,12 @@
                -->
             </div>
         </div>
-        <div v-else class="todos-container" @click="openCreate">
+        <div v-else class="todos-container" @click="openCreateOrEdit">
             What to do {{ dayName.toLowerCase() }}...
         </div>
         <div class="add-todo-btn">
           <!-- maybe dont show this if no task this day? -->
-          <span class="add-font" @click="openCreate">+</span>
+          <span class="add-font" @click="openCreateOrEdit">+</span>
           <!-- 
             other options
             remove completed items
@@ -56,7 +57,7 @@
         <div class="close-create-todo-btn" @click="isCreating = false">Close</div>
         <div class="create-todo-input-box">
           Due {{ dayName }}
-          <input type="text" v-model="newTodo" class="create-todo-input" @keyup.enter="createTodo" :ref="`create-todo-${dayName.toLowerCase()}`"/>
+          <input type="text" v-model="newTodo" class="create-todo-input" @keyup.enter="createOrEditTodo" :ref="`create-todo-${dayName.toLowerCase()}`"/>
         </div>
       </template>
     </div>
@@ -84,7 +85,8 @@ export default {
       list: [], // initialize the passed todos
       isCreating: false,
       newTodo: '',
-      selectedTask: ''
+      selectedTask: '',
+      editingTask: false
     }
   },
   computed: {
@@ -102,6 +104,18 @@ export default {
     }
   },
   methods: {
+    editTask () {
+      const cachedTodos = window.localStorage.getItem('todos') ? JSON.parse(window.localStorage.getItem('todos')) : ''
+
+      if (cachedTodos) {
+        const cachedTodoIndex = cachedTodos.findIndex(t => t.id === this.selectedTask)
+        
+        this.newTodo = cachedTodos[cachedTodoIndex].task
+      }
+
+      this.editingTask = true
+      this.openCreateOrEdit()
+    },
     changeTaskDay(day) {
       const taskIndex = this.list.findIndex(t => t.id === this.selectedTask)
 
@@ -139,31 +153,47 @@ export default {
         this.selectedTask = ''
       }
     },
-    createTodo () {
-      const newTodo = {
-        id: `task-${uuidv4()}`,
-        task: this.newTodo,
-        checked: false,
-        day: this.dayName.toLowerCase()
-      }
-
-      this.list.push(newTodo)
-
+    createOrEditTodo () {
       const cachedTodos = window.localStorage.getItem('todos') ? JSON.parse(window.localStorage.getItem('todos')) : ''
 
-      if (cachedTodos) {
-        cachedTodos.push(newTodo)
-        
-        window.localStorage.setItem('todos', JSON.stringify(cachedTodos))
+      if (!this.editingTask) {
+        const newTodo = {
+          id: `task-${uuidv4()}`,
+          task: this.newTodo,
+          checked: false,
+          day: this.dayName.toLowerCase()
+        }
+
+        this.list.push(newTodo)        
+
+        if (cachedTodos) {
+          cachedTodos.push(newTodo)
+          
+          window.localStorage.setItem('todos', JSON.stringify(cachedTodos))
+        } else {
+          window.localStorage.setItem('todos', JSON.stringify(this.list))
+        }
+
+
+        this.newTodo = ''
+        this.isCreating = false
       } else {
-        window.localStorage.setItem('todos', JSON.stringify(this.list))
+        if (cachedTodos) {
+          const cachedTodoIndex = cachedTodos.findIndex(t => t.id === this.selectedTask)
+
+          cachedTodos[cachedTodoIndex].task = this.newTodo
+
+          window.localStorage.setItem('todos', JSON.stringify(cachedTodos))  
+
+          this.editingTask = false
+          this.newTodo = ''
+          this.isCreating = false
+          this.selectedTask = ''
+          this.$emit('reloadCache')
+        }
       }
-
-
-      this.newTodo = ''
-      this.isCreating = false
     },
-    openCreate () {
+    openCreateOrEdit () {
       this.isCreating = true
       this.$nextTick(() => {
         this.$refs[`create-todo-${this.dayName.toLowerCase()}`].focus()

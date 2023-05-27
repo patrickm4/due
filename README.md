@@ -17,10 +17,10 @@ Following Vue PWA guide from here https://blog.logrocket.com/building-pwa-vue/
 
 - [x] Create tasks
 - [x] Read tasks
-- [ ] Update tasks
+- [x] Update tasks
 - [x] Delete tasks
-- [ ] Move tomorrow task to today
-- [ ] Move somedays into tomorrow with a time function of some sort
+- [ ] Move tomorrow task to today by time
+- [ ] Move somedays into tomorrow with a arbitrary time function
 - [ ] Options menu, three dots, top right fixed positon, About and Settings
 - [ ] Add darker bg color. lighter font color
 - [ ] add name top left. - with logo?
@@ -28,6 +28,7 @@ Following Vue PWA guide from here https://blog.logrocket.com/building-pwa-vue/
 - [ ] Light grey color for checked off tasks
 - [ ] Option to remove completed tasks, maybe an archive tab?
 - [ ] Add how long ago task was added, option to show this or not.
+- [ ] Change task array into map with task.id as key 
 
 - [ ] Deploy to patrickmoreno.ca/due
 
