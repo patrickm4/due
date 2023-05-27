@@ -12,8 +12,8 @@
               @click="selectedTask = todo.id"
             >
               <div class="tick-and-text-container">
-                <input type="checkbox" :checked="todo.checked" @click.stop/>
-                <span class="todo-text">{{ todo.task }}</span>
+                <input type="checkbox" :checked="todo.checked" @click.stop @change="updateChecked(todo.id, todo.checked)"/>
+                <span class="todo-text" :class="{ 'dark-and-strike-through':todo.checked }">{{ todo.task }}</span>
               </div>
               <div v-if="selectedTask === todo.id" class="task-dropdown">
                 <div class="task-dropdown-left">
@@ -95,6 +95,18 @@ export default {
     }
   },
   methods: {
+    updateChecked (id, isChecked) {
+      const cachedTodos = window.localStorage.getItem('todos') ? JSON.parse(window.localStorage.getItem('todos')) : ''
+        
+      if (cachedTodos) {
+        const cachedTodoIndex = cachedTodos.findIndex(t => t.id === id)
+
+        cachedTodos[cachedTodoIndex].checked = !isChecked
+
+        window.localStorage.setItem('todos', JSON.stringify(cachedTodos))  
+        this.$emit('reloadCache')
+      }
+    },
     editTask () {
       const cachedTodos = window.localStorage.getItem('todos') ? JSON.parse(window.localStorage.getItem('todos')) : ''
 
@@ -148,11 +160,17 @@ export default {
       const cachedTodos = window.localStorage.getItem('todos') ? JSON.parse(window.localStorage.getItem('todos')) : ''
 
       if (!this.editingTask) {
+        // use clients timezone
+        const time = new Date();
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+
         const newTodo = {
           id: `task-${uuidv4()}`,
           task: this.newTodo,
           checked: false,
-          day: this.dayName.toLowerCase()
+          day: this.dayName.toLowerCase(),
+          created_at: time.toLocaleString({ timeZone: timezone }),
+          timezone: timezone
         }
 
         this.list.push(newTodo)        

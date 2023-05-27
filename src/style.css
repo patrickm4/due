@@ -20,3 +20,8 @@ body {
 h1, .todo-text, .close-create-todo-btn, .create-todo-input-box, .add-font, .what-to-do-text {
   color: #eee;
 }
+
+.dark-and-strike-through {
+  text-decoration:line-through;
+  opacity: 0.4;
+}

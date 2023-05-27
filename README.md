@@ -19,14 +19,14 @@ Following Vue PWA guide from here https://blog.logrocket.com/building-pwa-vue/
 - [x] Read tasks
 - [x] Update tasks
 - [x] Delete tasks
-- [ ] Make checkmarks, text, and task buttons bigger
+- [x] Make checkmarks, text, and task buttons bigger
 - [ ] Move tomorrow task to today by time
 - [ ] Move somedays into tomorrow with a arbitrary time function
 - [ ] Options menu, three dots, top right fixed positon, About and Settings
-- [ ] Add darker bg color. lighter font color
+- [x] Add darker bg color. lighter font color
 - [ ] add name top left. - with logo?
 - [ ] Make quick logo
-- [ ] Light grey color for checked off tasks
+- [x] Light grey color for checked off tasks
 - [ ] Option to remove completed tasks, maybe an archive tab?
 - [ ] Add how long ago task was added, option to show this or not.
 - [ ] Change task array into map with task.id as key 
