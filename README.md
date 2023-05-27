@@ -33,6 +33,12 @@ Following Vue PWA guide from here https://blog.logrocket.com/building-pwa-vue/
 
 - [ ] Deploy to patrickmoreno.ca/due
 
+After observations on very quick, limited testing, suggestions and my findings:
+- [ ] Tap and hold to move tasks?
+- [ ] Click anywhere to create task
+- [ ] Indications that task can be clicked
+- [ ] indicator that scroll left and right to another day is possible
+
 ## Project setup
 ```
 yarn install
