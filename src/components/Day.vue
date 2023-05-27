@@ -39,7 +39,7 @@
                -->
             </div>
         </div>
-        <div v-else class="todos-container">
+        <div v-else class="todos-container" @click="openCreate">
             What to do {{ dayName.toLowerCase() }}...
         </div>
         <div class="add-todo-btn">
