@@ -19,6 +19,7 @@ Following Vue PWA guide from here https://blog.logrocket.com/building-pwa-vue/
 - [x] Read tasks
 - [x] Update tasks
 - [x] Delete tasks
+- [ ] Make checkmarks, text, and task buttons bigger
 - [ ] Move tomorrow task to today by time
 - [ ] Move somedays into tomorrow with a arbitrary time function
 - [ ] Options menu, three dots, top right fixed positon, About and Settings

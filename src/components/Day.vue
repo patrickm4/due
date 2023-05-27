@@ -11,8 +11,10 @@
               :key="todo.id"
               @click="selectedTask = todo.id"
             >
-              <input type="checkbox" :checked="todo.checked" @click.stop/>
-              {{ todo.task }}
+              <div class="tick-and-text-container">
+                <input type="checkbox" :checked="todo.checked" @click.stop/>
+                <span class="todo-text">{{ todo.task }}</span>
+              </div>
               <div v-if="selectedTask === todo.id" class="task-dropdown">
                 <div class="task-dropdown-left">
                   <button @click.stop="selectedTask = ''">Close</button>
@@ -27,21 +29,10 @@
                   <button @click.stop="deleteTask">Delete</button>
                 </div>
               </div>
-              <!-- 
-                task name
-                how long ago added
-                btn: Mark as completed
-                btn: Do it {day}
-                btn: Do it {day}
-                - or -
-                Schedule for a day
-                ----
-                delete
-               -->
             </div>
         </div>
         <div v-else class="todos-container" @click="openCreateOrEdit">
-            What to do {{ dayName.toLowerCase() }}...
+            <span class="what-to-do-text">What to do {{ dayName.toLowerCase() }}...</span>
         </div>
         <div class="add-todo-btn">
           <!-- maybe dont show this if no task this day? -->
@@ -56,7 +47,7 @@
       <template v-else>
         <div class="close-create-todo-btn" @click="isCreating = false">Close</div>
         <div class="create-todo-input-box">
-          Due {{ dayName }}
+          <span class="due-day-text">Due {{ dayName }}</span>
           <input type="text" v-model="newTodo" class="create-todo-input" @keyup.enter="createOrEditTodo" :ref="`create-todo-${dayName.toLowerCase()}`"/>
         </div>
       </template>
@@ -204,8 +195,20 @@ export default {
 </script>
 
 <style>
-  .task-dropdown-left {
-    
+  .tick-and-text-container{
+    display: flex;
+    align-items: center;
+  }
+  input[type="checkbox"] {
+    width: 18px;
+    height:18px;
+    margin-right: 1rem;
+  }
+  .todo-text, .what-to-do-text {
+    font-size: 16pt;
+  }
+  .due-day-text {
+    font-size: 14pt
   }
   .task-dropdown-right {
     display: flex;
@@ -227,9 +230,15 @@ export default {
   }
   .create-todo-input {
     border: none;
-    border-bottom: 2px solid #000;
-    border-left: 2px solid #000;
-    border-right: 2px solid #000;
+    border-bottom: 2px solid #eee;
+    border-left: 2px solid #eee;
+    border-right: 2px solid #eee;
+    background-color: #282c34;
+    color: #fff;
+    margin-top: 2rem;
+    padding: 0.5rem 1rem;
+    font-size: 18pt;
+    outline: none;
   }
   .create-todo-input-box {
     display: flex;

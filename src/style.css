@@ -12,3 +12,11 @@
 .clickable{
   cursor: pointer;
 }
+
+body {
+  background-color: #282c34;
+}
+
+h1, .todo-text, .close-create-todo-btn, .create-todo-input-box, .add-font, .what-to-do-text {
+  color: #eee;
+}
