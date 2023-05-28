@@ -38,6 +38,7 @@ After observations on very quick, limited testing, suggestions and my findings:
 - [ ] Click anywhere to create task
 - [ ] Indications that task can be clicked
 - [ ] indicator that scroll left and right to another day is possible
+- [ ] Prevent scroll on create
 
 ## Project setup
 ```

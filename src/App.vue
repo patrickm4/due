@@ -46,6 +46,7 @@ export default {
               todayTs.push(t)
               break
             case 'tomorrow':
+              //TODO check if the date is today or in the past, push to the today array if so.
               tomorrowTs.push(t)
               break
             case 'someday':

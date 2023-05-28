@@ -163,13 +163,29 @@ export default {
         // use clients timezone
         const time = new Date();
         const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+        let timeToSave = null
+
+        switch (this.dayName.toLowerCase()) {
+          case 'tomorrow': {
+            const currentDay = time.getDate()
+            time.setDate(currentDay + 1)
+
+            timeToSave = time.toLocaleString({ timeZone: timezone })
+            break
+          }
+          case 'someday': // add arbitrary time to move into tomorrow
+          case 'today':
+          default:
+            timeToSave = time.toLocaleString({ timeZone: timezone })
+        }
 
         const newTodo = {
           id: `task-${uuidv4()}`,
           task: this.newTodo,
           checked: false,
           day: this.dayName.toLowerCase(),
-          created_at: time.toLocaleString({ timeZone: timezone }),
+          date_due: timeToSave,
+          created_at: new Date().toLocaleString({ timeZone: timezone }),
           timezone: timezone
         }
 
