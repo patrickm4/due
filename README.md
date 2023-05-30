@@ -20,8 +20,8 @@ Following Vue PWA guide from here https://blog.logrocket.com/building-pwa-vue/
 - [x] Update tasks
 - [x] Delete tasks
 - [x] Make checkmarks, text, and task buttons bigger
-- [ ] Move tomorrow task to today by time
-- [ ] Move somedays into tomorrow with a arbitrary time function
+- [x] Move tomorrow task to today by time
+- [x] Move somedays into tomorrow with a arbitrary time function
 - [ ] Options menu, three dots, top right fixed positon, About and Settings
 - [x] Add darker bg color. lighter font color
 - [ ] add name top left. - with logo?
