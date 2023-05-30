@@ -40,22 +40,45 @@ export default {
         let tomorrowTs = []
         let somedayTs = []
 
-        todos.forEach(t => {
-          switch (t.day) {
-            case 'today':
-              todayTs.push(t)
-              break
-            case 'tomorrow':
-              //TODO check if the date is today or in the past, push to the today array if so.
-              tomorrowTs.push(t)
-              break
-            case 'someday':
-              somedayTs.push(t)
-              break;
-            default:
-              console.log("Error: task with no day attached")
+        for(var g = 0; g < todos.length;g++) {
+          // TODO need to handle diff timezones
+          // TODO check if task has dueDate and if valid
+          const nowInTimezone = new Date().toLocaleString({ timeZone: todos[g].timezone })
+          const now = new Date(nowInTimezone)
+          const dueDate = new Date(todos[g].due_date)
+          const currentDay = now.getDate()
+          const dueDay = dueDate.getDate()
+
+          // if day is the same, and due date is less than the now date, they just made that task today - due today, push it to today
+          if (currentDay === dueDay && dueDate < now) {
+            todayTs.push(todos[g])
+            continue
           }
-        })
+
+          // if day is not the same, and due date is not less than the now date, the task is due in the future, find if the task is one day ahead - push to tomorrow, else push to someday
+          if (currentDay !== dueDay && dueDate > now) {
+            // needed to getdate of tomorrow from now without doing currentday + 1 so that end of the month will work 
+            const tempNowWithTimezone = new Date().toLocaleString({ timeZone: todos[g].timezone })
+            const tempNow = new Date(tempNowWithTimezone)
+            const tempNowDay = tempNow.getDate()
+            tempNow.setDate(tempNowDay + 1)
+            const temp = new Date(tempNow)
+            const tempDay = temp.getDate()
+
+            if (tempDay === dueDay) {
+              tomorrowTs.push(todos[g])
+            } else {
+              // more than a day ahead
+              somedayTs.push(todos[g])
+            }
+            continue
+          }
+
+          // if the day is not the same, and that the time is less than the now date, the task was made atleast a month before, push it to today,
+          if (currentDay !== dueDay && dueDate < now) {
+            todayTs.push[todos[g]]
+          }
+        }
 
         this.todayTodos = todayTs
         this.tomorrowTodos = tomorrowTs

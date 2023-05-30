@@ -21,11 +21,12 @@
                 </div>
                 <div class="task-dropdown-right">
                   <button @click.stop="editTask">Edit</button>
-                  <button 
+                  <!-- uncomment when due date adjust fix is done -->
+                  <!-- <button 
                     v-for="otherDay in otherDays" 
                     :key="todo.id + otherDay"
                     @click.stop="changeTaskDay(otherDay)"  
-                  >Do it {{ otherDay }}</button>
+                  >Do it {{ otherDay }}</button> -->
                   <button @click.stop="deleteTask">Delete</button>
                 </div>
               </div>
@@ -82,7 +83,7 @@ export default {
   },
   computed: {
     todos () {
-      return this.list.filter(t => t.day === this.dayName.toLowerCase())
+      return this.list
     },
     otherDays () {
       const allDays = ['someday', 'today', 'tomorrow']
@@ -120,6 +121,7 @@ export default {
       this.openCreateOrEdit()
     },
     changeTaskDay(day) {
+      // TODO need to adjust due date instead of the day
       const taskIndex = this.list.findIndex(t => t.id === this.selectedTask)
 
       if (taskIndex !== -1) {
@@ -164,6 +166,9 @@ export default {
         const time = new Date();
         const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
         let timeToSave = null
+        let meta = {
+          timezone
+        }
 
         switch (this.dayName.toLowerCase()) {
           case 'tomorrow': {
@@ -173,7 +178,19 @@ export default {
             timeToSave = time.toLocaleString({ timeZone: timezone })
             break
           }
-          case 'someday': // add arbitrary time to move into tomorrow
+          case 'someday': {
+            const min = Math.ceil(7);
+            const max = Math.floor(21);
+            const randomDays = Math.floor(Math.random() * (max - min) + min)
+            const currentDay = time.getDate()
+            time.setDate(currentDay + randomDays)
+
+            timeToSave = time.toLocaleString({ timeZone: timezone })
+            meta.someday = {
+              numOfRandomDays: randomDays
+            }
+            break;
+          }
           case 'today':
           default:
             timeToSave = time.toLocaleString({ timeZone: timezone })
@@ -183,10 +200,9 @@ export default {
           id: `task-${uuidv4()}`,
           task: this.newTodo,
           checked: false,
-          day: this.dayName.toLowerCase(),
-          date_due: timeToSave,
+          due_date: timeToSave,
           created_at: new Date().toLocaleString({ timeZone: timezone }),
-          timezone: timezone
+          meta
         }
 
         this.list.push(newTodo)        
