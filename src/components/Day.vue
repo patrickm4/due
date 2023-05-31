@@ -175,7 +175,7 @@ export default {
             const currentDay = time.getDate()
             time.setDate(currentDay + 1)
 
-            timeToSave = time.toLocaleString({ timeZone: timezone })
+            timeToSave = time.toLocaleString('en-US', { timeZone: timezone })
             break
           }
           case 'someday': {
@@ -185,7 +185,7 @@ export default {
             const currentDay = time.getDate()
             time.setDate(currentDay + randomDays)
 
-            timeToSave = time.toLocaleString({ timeZone: timezone })
+            timeToSave = time.toLocaleString('en-US', { timeZone: timezone })
             meta.someday = {
               numOfRandomDays: randomDays
             }
@@ -193,7 +193,7 @@ export default {
           }
           case 'today':
           default:
-            timeToSave = time.toLocaleString({ timeZone: timezone })
+            timeToSave = time.toLocaleString('en-US', { timeZone: timezone })
         }
 
         const newTodo = {
@@ -201,7 +201,7 @@ export default {
           task: this.newTodo,
           checked: false,
           due_date: timeToSave,
-          created_at: new Date().toLocaleString({ timeZone: timezone }),
+          created_at: new Date().toLocaleString('en-US', { timeZone: timezone }),
           meta
         }
 

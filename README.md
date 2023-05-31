@@ -6,7 +6,9 @@ Today I'll do this.
 Tomorrow I'll finish that.
 Someday maybe I'll start that.
 
-Following Vue PWA guide from here https://blog.logrocket.com/building-pwa-vue/
+Following these Vue PWA guides:
+- https://blog.logrocket.com/building-pwa-vue/
+- https://dev.to/drbragg/handling-service-worker-updates-in-your-vue-pwa-1pip
 
 ## Built with
 
