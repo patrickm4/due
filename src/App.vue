@@ -54,7 +54,6 @@ export default {
 
           // if day is the same, and due date is less than the now date, they just made that task today - due today, push it to today
           if (currentDay === dueDay && dueDate < now) {
-            console.log("today1", todos[g])
             todayTs.push(todos[g])
             continue
           }
@@ -68,9 +67,7 @@ export default {
             tempNowCheck.setHours(0,0,0,0)
 
             if (dueDate < tempNowCheck) {
-              console.log("today2", todos[g])
               todayTs.push(todos[g])
-              console.log("today22", todayTs)
               continue
             }
           }
