@@ -1,9 +1,12 @@
-<template>  
-  <vue-scroll-snap :fullscreen="true" :horizontal="true">
-    <Day class="item" :items="todayTodos" day-name="Today" @reloadCache="getTasks"></Day>
-    <Day class="item" :items="tomorrowTodos" day-name="Tomorrow" @reloadCache="getTasks"></Day>
-    <Day class="item" :items="somedayTodos" day-name="Someday" @reloadCache="getTasks"></Day>
-  </vue-scroll-snap>
+<template>
+  <div>
+    <div>v0.1.0</div>
+    <vue-scroll-snap :fullscreen="true" :horizontal="true">
+      <Day class="item" :items="todayTodos" day-name="Today" @reloadCache="getTasks"></Day>
+      <Day class="item" :items="tomorrowTodos" day-name="Tomorrow" @reloadCache="getTasks"></Day>
+      <Day class="item" :items="somedayTodos" day-name="Someday" @reloadCache="getTasks"></Day>
+    </vue-scroll-snap>
+  </div>
 </template>
 
 <script>
@@ -51,11 +54,28 @@ export default {
 
           // if day is the same, and due date is less than the now date, they just made that task today - due today, push it to today
           if (currentDay === dueDay && dueDate < now) {
+            console.log("today1", todos[g])
             todayTs.push(todos[g])
             continue
           }
 
-          // if day is not the same, and due date is not less than the now date, the task is due in the future, find if the task is one day ahead - push to tomorrow, else push to someday
+          // if day is the same and due date is more than the now date, task at night for tomorrow, next day comes due date is later in the night, push today
+          if(currentDay === dueDay && dueDate > now) {
+            // get midnight today and see if due date is less than that
+            const tempNowCheck = new Date(nowInTimezone)
+            const tempNowCheckDay = tempNowCheck.getDate()
+            tempNowCheck.setDate(tempNowCheckDay + 1)
+            tempNowCheck.setHours(0,0,0,0)
+
+            if (dueDate < tempNowCheck) {
+              console.log("today2", todos[g])
+              todayTs.push(todos[g])
+              console.log("today22", todayTs)
+              continue
+            }
+          }
+
+          // // if day is not the same, and due date is not less than the now date, the task is due in the future, find if the task is one day ahead - push to tomorrow, else push to someday
           if (currentDay !== dueDay && dueDate > now) {
             // needed to getdate of tomorrow from now without doing currentday + 1 so that end of the month will work 
             const tempNowWithTimezone = new Date().toLocaleString({ timeZone: todos[g].timezone })
@@ -74,9 +94,10 @@ export default {
             continue
           }
 
-          // if the day is not the same, and that the time is less than the now date, the task was made atleast a month before, push it to today,
+          // // if the day is not the same, and that the time is less than the now date, the task was made atleast a month before, push it to today,
           if (currentDay !== dueDay && dueDate < now) {
-            todayTs.push[todos[g]]
+            todayTs.push(todos[g])
+            continue
           }
         }
 
