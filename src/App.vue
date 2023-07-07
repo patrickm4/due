@@ -2,6 +2,7 @@
   <div>
     <div class="top-bar">
       <div>
+        <!-- TODO get package.json verison -->
         v0.1.5
         <!-- for mobile testing -->
         <!-- TEST CHECK:{{ checkLengthTest }} logs: {{ logs }}  -->

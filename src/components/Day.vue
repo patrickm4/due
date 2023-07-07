@@ -12,7 +12,9 @@
               @click="selectedTask = todo.id"
             >
               <div class="tick-and-text-container">
-                <input type="checkbox" :checked="todo.checked" @click.stop @change="updateChecked(todo.id, todo.checked)"/>
+                <label>
+                  <input type="checkbox" :checked="todo.checked" @click.stop @change="updateChecked(todo.id, todo.checked)"/>
+                </label>
                 <span class="todo-text" :class="{ 'dark-and-strike-through':todo.checked }">{{ todo.task }}</span>
               </div>
               <div v-if="selectedTask === todo.id" class="task-dropdown">
@@ -253,6 +255,7 @@ export default {
     width: 18px;
     height:18px;
     margin-right: 1rem;
+    flex: 1;
   }
   .todo-text, .what-to-do-text {
     font-size: 16pt;
