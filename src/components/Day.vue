@@ -24,12 +24,11 @@
                 </div>
                 <div class="task-dropdown-right">
                   <button @click.stop="editTask">Edit</button>
-                  <!-- uncomment when due date adjust fix is done -->
-                  <!-- <button 
+                  <button 
                     v-for="otherDay in otherDays" 
                     :key="todo.id + otherDay"
                     @click.stop="changeTaskDay(otherDay)"  
-                  >Do it {{ otherDay }}</button> -->
+                  >Do it {{ otherDay }}</button>
                   <button @click.stop="deleteTask">Delete</button>
                 </div>
               </div>
@@ -124,7 +123,7 @@ export default {
       this.openCreateOrEdit()
     },
     changeTaskDay(day) {
-      // TODO need to adjust due date instead of the day
+
       const taskIndex = this.list.findIndex(t => t.id === this.selectedTask)
 
       if (taskIndex !== -1) {
@@ -133,8 +132,27 @@ export default {
         
         if (cachedTodos) {
           const cachedTodoIndex = cachedTodos.findIndex(t => t.id === this.selectedTask)
+          const time = new Date();
+          const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+          const currentDay = time.getDate()
 
-          cachedTodos[cachedTodoIndex].day = day
+          // adjust due date
+          switch (day) {
+            case 'today':
+              break
+            case 'tomorrow':
+              time.setDate(currentDay + 1)
+              break
+            case 'someday': {
+              const min = Math.ceil(7);
+              const max = Math.floor(21);
+              const randomDays = Math.floor(Math.random() * (max - min) + min)
+              time.setDate(currentDay + randomDays)
+              break
+            }
+          }
+
+          cachedTodos[cachedTodoIndex].due_date = time.toLocaleString('en-US', { timeZone: timezone })
 
           window.localStorage.setItem('todos', JSON.stringify(cachedTodos))  
         }

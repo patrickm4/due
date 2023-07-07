@@ -61,6 +61,7 @@ export default {
         let tomorrowTs = []
         let somedayTs = []
 
+
         for(var g = 0; g < todos.length;g++) {
           // this.logs.push(`start item:${JSON.stringify(todos[g])}`)
           // TODO need to handle diff timezones
@@ -72,7 +73,7 @@ export default {
           const dueDay = dueDate.getDate()
 
           // if day is the same, and due date is less than the now date, they just made that task today - due today, push it to today
-          if (currentDay === dueDay && dueDate < now) {
+          if (currentDay === dueDay && dueDate <= now) {
             todayTs.push(todos[g])
             continue
           }
