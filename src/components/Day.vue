@@ -10,6 +10,7 @@
               v-for="todo in todos"
               :key="todo.id"
               @click="selectedTask = todo.id"
+              class="task-and-btns-container"
             >
               <div class="tick-and-text-container">
                 <label>
@@ -247,7 +248,10 @@ export default {
 </script>
 
 <style>
-  .tick-and-text-container{
+  .task-and-btns-container {
+    width: 95%;
+  }
+  .tick-and-text-container {
     display: flex;
     align-items: center;
   }
