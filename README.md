@@ -33,7 +33,7 @@ Following these Vue PWA guides:
 - [ ] Add how long ago task was added, option to show this or not.
 - [ ] Change task array into map with task.id as key 
 
-- [ ] Deploy to patrickmoreno.ca/due
+- [x] Deploy to patrickmoreno.ca/due
 
 After observations on very quick, limited testing, suggestions and my findings:
 - [ ] Tap and hold to move tasks?

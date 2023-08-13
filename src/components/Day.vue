@@ -6,29 +6,30 @@
             v-if="todos && todos.length"
             class="todos-container"
         >
+              <!-- @click="selectedTask = todo.id" -->
             <div 
               v-for="todo in todos"
               :key="todo.id"
-              @click="selectedTask = todo.id"
+              @click="ToggleTaskActions(todo.id)"
               class="task-and-btns-container"
             >
-              <div class="tick-and-text-container">
+              <div 
+                class="tick-and-text-container"
+                :class="[selectedTask === todo.id ? 'border-active-task' : '']"
+              >
                 <label>
                   <input type="checkbox" :checked="todo.checked" @click.stop @change="updateChecked(todo.id, todo.checked)"/>
                 </label>
                 <span class="todo-text" :class="{ 'dark-and-strike-through':todo.checked }">{{ todo.task }}</span>
               </div>
               <div v-if="selectedTask === todo.id" class="task-dropdown">
-                <div class="task-dropdown-left">
-                  <button @click.stop="selectedTask = ''">Close</button>
-                </div>
-                <div class="task-dropdown-right">
+                <div class="task-actions-container">
                   <button @click.stop="editTask">Edit</button>
-                  <button 
-                    v-for="otherDay in otherDays" 
-                    :key="todo.id + otherDay"
-                    @click.stop="changeTaskDay(otherDay)"  
-                  >Do it {{ otherDay }}</button>
+                    <button 
+                      v-for="otherDay in otherDays" 
+                      :key="todo.id + otherDay"
+                      @click.stop="changeTaskDay(otherDay)"  
+                    >Do it {{ otherDay }}</button>
                   <button @click.stop="deleteTask">Delete</button>
                 </div>
               </div>
@@ -98,6 +99,9 @@ export default {
     }
   },
   methods: {
+    ToggleTaskActions (taskId) {
+      !this.selectedTask || this.selectedTask !== taskId ? this.selectedTask = taskId : this.selectedTask = ''
+    },
     updateChecked (id, isChecked) {
       const cachedTodos = window.localStorage.getItem('todos') ? JSON.parse(window.localStorage.getItem('todos')) : ''
         
@@ -268,6 +272,12 @@ export default {
 <style>
   .task-and-btns-container {
     width: 95%;
+    margin: .5rem 0 .5rem 0;
+  }
+  .border-active-task {
+    border-top: 1px solid #505662;
+    padding: .25rem 0 .5rem 0;
+    margin-top: .5rem;
   }
   .tick-and-text-container {
     display: flex;
@@ -332,5 +342,20 @@ export default {
     display: flex;
     justify-content: center;
     width:100%;
+  }
+  .task-actions-container {
+    display: flex;
+    justify-content: space-between;
+    width:100%;
+    padding-bottom: .75rem;
+    border-bottom: 1px solid #505662;
+  }
+  .task-actions-container > button {
+    background-color:#424855;
+    padding: .25rem .5rem;
+    text-decoration: none;
+    border: 1px solid rgba(0,0,0,0);
+    border-radius: 0.2rem;
+    color: #e7e7e7;
   }
 </style>
