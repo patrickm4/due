@@ -94,8 +94,11 @@ export default {
     }
   },
   watch: {
-    items (val) {
-      this.list = val
+    items: {
+      deep: true,
+      handler (val) {
+        this.list = val
+      }
     }
   },
   methods: {

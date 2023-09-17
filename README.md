@@ -15,6 +15,8 @@ Following these Vue PWA guides:
 - Vue 2
 - PWA
 
+2023-09-17 Migrated to Vue 3
+
 ### Roadmap
 
 - [x] Create tasks
