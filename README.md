@@ -44,6 +44,12 @@ After observations on very quick, limited testing, suggestions and my findings:
 - [ ] indicator that scroll left and right to another day is possible
 - [ ] Prevent scroll on create
 
+2025
+
+- [] test and fix bugs
+- [] switch from localstorage to indexedDB
+- [] migrate VUE CLI to Vite
+
 ## Project setup
 ```
 yarn install
