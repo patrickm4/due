@@ -6,11 +6,11 @@
             v-if="todos && todos.length"
             class="todos-container"
         >
-              <!-- @click="selectedTask = todo.id" -->
             <div 
-              v-for="todo in todos"
+              v-for="(todo, index) in todos"
               :key="todo.id"
               @click="ToggleTaskActions(todo.id)"
+              :style="{ paddingBottom: index + 1 === todos.length ? '100px' : '' }"
               class="task-and-btns-container"
             >
               <div 
@@ -51,8 +51,13 @@
       <template v-else>
         <div class="close-create-todo-btn" @click="isCreating = false">Close</div>
         <div class="create-todo-input-box">
-          <span class="due-day-text">Due {{ dayName }}</span>
-          <input type="text" v-model="newTodo" class="create-todo-input" @keyup.enter="createOrEditTodo" :ref="`create-todo-${dayName.toLowerCase()}`"/>
+          <div class="task-input-area">
+            <span class="due-day-text">Due {{ dayName }}</span>
+            <input type="text" v-model="newTodo" class="create-todo-input" @keyup.enter="createOrEditTodo" :ref="`create-todo-${dayName.toLowerCase()}`"/>
+          </div>
+          <div>
+            <button class="create-task-btn" @click="createOrEditTodo">Create</button>
+          </div>
         </div>
       </template>
     </div>
@@ -91,7 +96,7 @@ export default {
     otherDays () {
       const allDays = ['someday', 'today', 'tomorrow']
       return allDays.filter(d => d !== this.dayName.toLowerCase())
-    }
+    },
   },
   watch: {
     items: {
@@ -328,13 +333,19 @@ export default {
     font-size: 18pt;
     outline: none;
   }
-  .create-todo-input-box {
+  .create-todo-input-box, .task-input-area {
     display: flex;
     align-items: center;
-    flex-direction: column;  
+    flex-direction: column;
+  }
+  .create-todo-input-box {
+    justify-content: space-between;
+    height: 80vh;
   }
   .todos-container {
       margin-left: 1.5rem;
+      overflow: auto;
+      height: 80vh;
   }
   .add-font {
     font-size:36pt;
@@ -360,5 +371,14 @@ export default {
     border: 1px solid rgba(0,0,0,0);
     border-radius: 0.2rem;
     color: #e7e7e7;
+  }
+  .create-task-btn {
+    width: 92vw;
+    height: 40px;
+    background-color: #3f4f5f;
+    border-color: #3f4f5f;
+    color: #eee;
+    border-style: solid;
+    border-width: 1px
   }
 </style>
