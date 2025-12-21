@@ -3,45 +3,49 @@
     <template v-if="!isCreating">
       <h1>{{ dayName }}</h1>
       <div v-if="todos && todos.length" class="todos-container">
-        <div
-          v-for="(todo, index) in todos"
-          :key="todo.id"
-          @click="ToggleTaskActions(todo.id)"
-          :style="{ paddingBottom: index + 1 === todos.length ? '100px' : '' }"
-          class="task-and-btns-container"
-        >
+        <draggable :list="todos" class="drag-area" @change="handleChange">
           <div
-            class="tick-and-text-container"
-            :class="[selectedTask === todo.id ? 'border-active-task' : '']"
+            v-for="(todo, index) in todos"
+            :key="todo.id"
+            @click="ToggleTaskActions(todo.id)"
+            :style="{
+              paddingBottom: index + 1 === todos.length ? '100px' : '',
+            }"
+            class="task-and-btns-container"
           >
-            <label>
-              <input
-                type="checkbox"
-                :checked="todo.checked"
-                @click.stop
-                @change="updateChecked(todo.id, todo.checked)"
-              />
-            </label>
-            <span
-              class="todo-text"
-              :class="{ 'dark-and-strike-through': todo.checked }"
-              >{{ todo.task }}</span
+            <div
+              class="tick-and-text-container"
+              :class="[selectedTask === todo.id ? 'border-active-task' : '']"
             >
-          </div>
-          <div v-if="selectedTask === todo.id" class="task-dropdown">
-            <div class="task-actions-container">
-              <button @click.stop="editTask">Edit</button>
-              <button
-                v-for="otherDay in otherDays"
-                :key="todo.id + otherDay"
-                @click.stop="changeTaskDay(otherDay)"
+              <label>
+                <input
+                  type="checkbox"
+                  :checked="todo.checked"
+                  @click.stop
+                  @change="updateChecked(todo.id, todo.checked)"
+                />
+              </label>
+              <span
+                class="todo-text"
+                :class="{ 'dark-and-strike-through': todo.checked }"
+                >{{ todo.task }}</span
               >
-                Do it {{ otherDay }}
-              </button>
-              <button @click.stop="deleteTask">Delete</button>
+            </div>
+            <div v-if="selectedTask === todo.id" class="task-dropdown">
+              <div class="task-actions-container">
+                <button @click.stop="editTask">Edit</button>
+                <button
+                  v-for="otherDay in otherDays"
+                  :key="todo.id + otherDay"
+                  @click.stop="changeTaskDay(otherDay)"
+                >
+                  Do it {{ otherDay }}
+                </button>
+                <button @click.stop="deleteTask">Delete</button>
+              </div>
             </div>
           </div>
-        </div>
+        </draggable>
       </div>
       <div v-else class="todos-container" @click="openCreateOrEdit">
         <span class="what-to-do-text"
@@ -82,10 +86,13 @@
 </template>
 
 <script>
+import { VueDraggableNext } from "vue-draggable-next";
 import { v4 as uuidv4 } from "uuid";
 
 export default {
-  name: "Day",
+  components: {
+    draggable: VueDraggableNext,
+  },
   props: {
     items: {
       type: Array,
@@ -125,6 +132,9 @@ export default {
     },
   },
   methods: {
+    handleChange(event) {
+      console.log("Changed:", event);
+    },
     ToggleTaskActions(taskId) {
       !this.selectedTask || this.selectedTask !== taskId
         ? (this.selectedTask = taskId)
