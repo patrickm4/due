@@ -7,6 +7,7 @@ Tomorrow I'll finish that.
 Someday maybe I'll start that.
 
 Following these Vue PWA guides:
+
 - https://blog.logrocket.com/building-pwa-vue/
 - https://dev.to/drbragg/handling-service-worker-updates-in-your-vue-pwa-1pip
 
@@ -33,42 +34,48 @@ Following these Vue PWA guides:
 - [x] Light grey color for checked off tasks
 - [ ] Option to remove completed tasks, maybe an archive tab?
 - [ ] Add how long ago task was added, option to show this or not.
-- [ ] Change task array into map with task.id as key 
+- [ ] Change task array into map with task.id as key
 
 - [x] Deploy to patrickmoreno.ca/due
 
 After observations on very quick, limited testing, suggestions and my findings:
+
 - [ ] Tap and hold to move tasks?
 - [ ] Click anywhere to create task
 - [ ] Indications that task can be clicked
 - [ ] indicator that scroll left and right to another day is possible
 - [ ] Prevent scroll on create
 
-2025
+2026
 
 - [] test and fix bugs
 - [] switch from localstorage to indexedDB
-- [] migrate VUE CLI to Vite
+- [x] migrate VUE CLI to Vite 2026-02-15 PR #16
 
 ## Project setup
+
 ```
 yarn install
 ```
 
 ### Compiles and hot-reloads for development
+
 ```
 yarn serve
 ```
 
 ### Compiles and minifies for production
+
 ```
 yarn build
 ```
 
 ### Lints and fixes files
+
 ```
 yarn lint
 ```
 
 ### Customize configuration
+
 See [Configuration Reference](https://cli.vuejs.org/config/).
