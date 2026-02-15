@@ -1,4 +1,4 @@
-FROM node:16
+FROM node:24
 
 WORKDIR /app
 
@@ -10,4 +10,6 @@ COPY . .
 
 EXPOSE 3000
 
-CMD ["yarn", "serve"]
+CMD ["yarn", "dev"]
+#CMD ["yarn"]
+# CMD ["sleep", "infinity"]
