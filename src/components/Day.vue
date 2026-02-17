@@ -1,6 +1,6 @@
 <template>
   <div class="page-day">
-    <template v-if="!isCreating">
+    <template v-if="!isCreatingOrEditing">
       <h1>{{ dayName }}</h1>
       <div v-if="todos && todos.length" class="todos-container">
         <div
@@ -12,25 +12,23 @@
         >
           <div
             class="tick-and-text-container"
-            :class="[selectedTask === todo.id ? 'border-active-task' : '']"
+            :class="[selectedTaskId === todo.id ? 'border-active-task' : '']"
           >
             <label>
               <input
                 type="checkbox"
-                :checked="todo.checked"
+                :checked="todo.isCompleted"
                 @click.stop
-                @change="updateChecked(todo.id, todo.checked)"
+                @change="updateChecked(todo.id, todo.isCompleted)"
               />
             </label>
-            <span
-              class="todo-text"
-              :class="{ 'dark-and-strike-through': todo.checked }"
-              >{{ todo.task }}</span
-            >
+            <span class="todo-text" :class="{ 'dark-and-strike-through': todo.isCompleted }">{{
+              todo.taskName
+            }}</span>
           </div>
-          <div v-if="selectedTask === todo.id" class="task-dropdown">
+          <div v-if="selectedTaskId === todo.id" class="task-dropdown">
             <div class="task-actions-container">
-              <button @click.stop="editTask">Edit</button>
+              <button @click.stop="openCreateOrEdit('edit')">Edit</button>
               <button
                 v-for="otherDay in otherDays"
                 :key="todo.id + otherDay"
@@ -43,14 +41,12 @@
           </div>
         </div>
       </div>
-      <div v-else class="todos-container" @click="openCreateOrEdit">
-        <span class="what-to-do-text"
-          >What to do {{ dayName.toLowerCase() }}...</span
-        >
+      <div v-else class="todos-container" @click="openCreateOrEdit('create')">
+        <span class="what-to-do-text">What to do {{ dayName.toLowerCase() }}...</span>
       </div>
       <div class="add-todo-btn">
         <!-- maybe dont show this if no task this day? -->
-        <span class="add-font" @click="openCreateOrEdit">+</span>
+        <span class="add-font" @click="openCreateOrEdit('create')">+</span>
         <!-- 
             other options
             remove completed items
@@ -59,11 +55,20 @@
       </div>
     </template>
     <template v-else>
-      <div class="close-create-todo-btn" @click="isCreating = false">Close</div>
+      <div class="close-create-todo-btn" @click="closeInput">Close</div>
       <div class="create-todo-input-box">
         <div class="task-input-area">
           <span class="due-day-text">Due {{ dayName }}</span>
           <input
+            v-if="isEditingTask"
+            type="text"
+            v-model="editingTask.taskName"
+            class="create-todo-input"
+            @keyup.enter="createOrEditTodo"
+            :ref="`create-todo-${dayName.toLowerCase()}`"
+          />
+          <input
+            v-else
             type="text"
             v-model="newTodo"
             class="create-todo-input"
@@ -73,7 +78,7 @@
         </div>
         <div>
           <button class="create-task-btn" @click="createOrEditTodo">
-            Create
+            {{ isCreating ? 'Create' : 'Edit' }}
           </button>
         </div>
       </div>
@@ -82,10 +87,12 @@
 </template>
 
 <script>
-import { v4 as uuidv4 } from "uuid";
+import { v4 as uuidv4 } from 'uuid';
+import { todoRepository } from '@/db/repository.js';
+import { cloneDeep } from 'lodash';
 
 export default {
-  name: "Day",
+  name: 'Day',
   props: {
     items: {
       type: Array,
@@ -95,143 +102,122 @@ export default {
     },
     dayName: {
       type: String,
-      default: "",
+      default: '',
     },
   },
   data() {
     return {
       list: [], // initialize the passed todos
       isCreating: false,
-      newTodo: "",
-      selectedTask: "",
-      editingTask: false,
+      newTodo: '',
+      editingTask: null,
+      selectedTaskId: '',
+      isEditingTask: false,
+      isCreatingOrEditing: false,
     };
   },
   computed: {
     todos() {
-      return this.list;
+      return this.items;
     },
     otherDays() {
-      const allDays = ["someday", "today", "tomorrow"];
+      const allDays = ['someday', 'today', 'tomorrow'];
       return allDays.filter((d) => d !== this.dayName.toLowerCase());
-    },
-  },
-  watch: {
-    items: {
-      deep: true,
-      handler(val) {
-        this.list = val;
-      },
     },
   },
   methods: {
     ToggleTaskActions(taskId) {
-      !this.selectedTask || this.selectedTask !== taskId
-        ? (this.selectedTask = taskId)
-        : (this.selectedTask = "");
+      !this.selectedTaskId || this.selectedTaskId !== taskId
+        ? (this.selectedTaskId = taskId)
+        : (this.selectedTaskId = '');
     },
-    updateChecked(id, isChecked) {
-      const cachedTodos = window.localStorage.getItem("todos")
-        ? JSON.parse(window.localStorage.getItem("todos"))
-        : "";
-
-      if (cachedTodos) {
-        const cachedTodoIndex = cachedTodos.findIndex((t) => t.id === id);
-
-        cachedTodos[cachedTodoIndex].checked = !isChecked;
-
-        window.localStorage.setItem("todos", JSON.stringify(cachedTodos));
-        this.$emit("reloadCache");
-      }
+    /**
+     * When the checkbox is checked run this to update the database
+     * @params {string} id
+     * @params {boolean} isChecked
+     */
+    async updateChecked(id, isChecked) {
+      await todoRepository.update(id, { isCompleted: !isChecked });
+      this.$emit('reloadCache');
     },
-    editTask() {
-      const cachedTodos = window.localStorage.getItem("todos")
-        ? JSON.parse(window.localStorage.getItem("todos"))
-        : "";
+    /**
+     * Assign the editing task obj to be editable
+     */
+    setEditTask() {
+      const taskToEdit = this.todos.find((t) => t.id === this.selectedTaskId);
 
-      if (cachedTodos) {
-        const cachedTodoIndex = cachedTodos.findIndex(
-          (t) => t.id === this.selectedTask
-        );
+      this.editingTask = cloneDeep(taskToEdit);
 
-        this.newTodo = cachedTodos[cachedTodoIndex].task;
-      }
-
-      this.editingTask = true;
-      this.openCreateOrEdit();
+      this.isEditingTask = true;
     },
-    changeTaskDay(day) {
-      const taskIndex = this.list.findIndex((t) => t.id === this.selectedTask);
+    /**
+     * Change the day for the task
+     * @param {string} day
+     */
+    async changeTaskDay(day) {
+      const time = new Date();
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const currentDay = time.getDate();
 
-      if (taskIndex !== -1) {
-        this.list.splice(taskIndex, 1);
-        const cachedTodos = window.localStorage.getItem("todos")
-          ? JSON.parse(window.localStorage.getItem("todos"))
-          : "";
-
-        if (cachedTodos) {
-          const cachedTodoIndex = cachedTodos.findIndex(
-            (t) => t.id === this.selectedTask
-          );
-          const time = new Date();
-          const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-          const currentDay = time.getDate();
-
-          // adjust due date
-          switch (day) {
-            case "today":
-              break;
-            case "tomorrow":
-              time.setDate(currentDay + 1);
-              break;
-            case "someday": {
-              const min = Math.ceil(7);
-              const max = Math.floor(21);
-              const randomDays = Math.floor(Math.random() * (max - min) + min);
-              time.setDate(currentDay + randomDays);
-              break;
-            }
-          }
-
-          cachedTodos[cachedTodoIndex].due_date = time.toLocaleString("en-US", {
-            timeZone: timezone,
-          });
-
-          window.localStorage.setItem("todos", JSON.stringify(cachedTodos));
+      switch (day) {
+        case 'today':
+          break;
+        case 'tomorrow':
+          time.setDate(currentDay + 1);
+          break;
+        case 'someday': {
+          // TODO need to setup a global way to set what time some day will be so we can make it user editable later
+          const min = Math.ceil(7);
+          const max = Math.floor(21);
+          const randomDays = Math.floor(Math.random() * (max - min) + min);
+          time.setDate(currentDay + randomDays);
+          break;
         }
-
-        this.selectedTask = "";
-        this.$emit("reloadCache");
       }
+
+      await todoRepository.update(this.selectedTaskId, {
+        dueDate: time.toLocaleString('en-US', {
+          timeZone: timezone,
+        }),
+      });
+
+      this.selectedTaskId = '';
+      this.$emit('reloadCache');
     },
-    deleteTask() {
-      const taskIndex = this.list.findIndex((t) => t.id === this.selectedTask);
-
-      if (taskIndex !== -1) {
-        this.list.splice(taskIndex, 1);
-        const cachedTodos = window.localStorage.getItem("todos")
-          ? JSON.parse(window.localStorage.getItem("todos"))
-          : "";
-
-        if (cachedTodos) {
-          const cachedTodoIndex = cachedTodos.findIndex(
-            (t) => t.id === this.selectedTask
-          );
-
-          cachedTodos.splice(cachedTodoIndex, 1);
-
-          window.localStorage.setItem("todos", JSON.stringify(cachedTodos));
-        }
-
-        this.selectedTask = "";
-      }
+    /**
+     * Delete the selected task and grab fresh data
+     */
+    async deleteTask() {
+      await todoRepository.delete(this.selectedTaskId);
+      this.selectedTaskId = '';
+      this.$emit('reloadCache');
     },
+    /**
+     * start the edit or create action depeding on the current state the user is in
+     */
     createOrEditTodo() {
-      const cachedTodos = window.localStorage.getItem("todos")
-        ? JSON.parse(window.localStorage.getItem("todos"))
-        : "";
+      if (this.isCreating) {
+        this.createTodo();
+      } else if (this.isEditingTask) {
+        this.EditTodo();
+      }
+    },
+    /**
+     * Save any edits and grab fresh data
+     */
+    async EditTodo() {
+      await todoRepository.put({
+        ...this.editingTask,
+      });
 
-      if (!this.editingTask) {
+      this.closeInput();
+      this.$emit('reloadCache');
+    },
+    /**
+     * Create the task and grab fresh data
+     */
+    async createTodo() {
+      if (!this.isEditingTask) {
         // use clients timezone
         const time = new Date();
         const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -241,74 +227,80 @@ export default {
         };
 
         switch (this.dayName.toLowerCase()) {
-          case "tomorrow": {
+          case 'tomorrow': {
             const currentDay = time.getDate();
             time.setDate(currentDay + 1);
 
-            timeToSave = time.toLocaleString("en-US", { timeZone: timezone });
+            timeToSave = time.toLocaleString('en-US', { timeZone: timezone });
             break;
           }
-          case "someday": {
+          case 'someday': {
             const min = Math.ceil(7);
             const max = Math.floor(21);
             const randomDays = Math.floor(Math.random() * (max - min) + min);
             const currentDay = time.getDate();
             time.setDate(currentDay + randomDays);
 
-            timeToSave = time.toLocaleString("en-US", { timeZone: timezone });
+            timeToSave = time.toLocaleString('en-US', { timeZone: timezone });
             meta.someday = {
               numOfRandomDays: randomDays,
             };
             break;
           }
-          case "today":
+          case 'today':
           default:
-            timeToSave = time.toLocaleString("en-US", { timeZone: timezone });
+            timeToSave = time.toLocaleString('en-US', { timeZone: timezone });
         }
 
         const newTodo = {
           id: `task-${uuidv4()}`,
-          task: this.newTodo,
-          checked: false,
-          due_date: timeToSave,
-          created_at: new Date().toLocaleString("en-US", {
+          taskName: this.newTodo,
+          isCompleted: false,
+          dueDate: timeToSave,
+          createdAt: new Date().toLocaleString('en-US', {
             timeZone: timezone,
           }),
           meta,
         };
 
-        this.list.push(newTodo);
+        await todoRepository.add(newTodo);
 
-        if (cachedTodos) {
-          cachedTodos.push(newTodo);
-
-          window.localStorage.setItem("todos", JSON.stringify(cachedTodos));
-        } else {
-          window.localStorage.setItem("todos", JSON.stringify(this.list));
-        }
-
-        this.newTodo = "";
+        this.newTodo = '';
         this.isCreating = false;
       } else {
-        if (cachedTodos) {
-          const cachedTodoIndex = cachedTodos.findIndex(
-            (t) => t.id === this.selectedTask
-          );
+        await todoRepository.put({
+          ...this.editingTask,
+        });
 
-          cachedTodos[cachedTodoIndex].task = this.newTodo;
-
-          window.localStorage.setItem("todos", JSON.stringify(cachedTodos));
-
-          this.editingTask = false;
-          this.newTodo = "";
-          this.isCreating = false;
-          this.selectedTask = "";
-          this.$emit("reloadCache");
-        }
+        this.isEditingTask = false;
+        this.editingTask = null;
+        this.selectedTaskId = '';
       }
+      this.closeInput();
+      this.$emit('reloadCache');
     },
-    openCreateOrEdit() {
-      this.isCreating = true;
+    /**
+     * Close inputs and reset users state
+     */
+    closeInput() {
+      this.isEditingTask = false;
+      this.editingTask = null;
+      this.isCreating = false;
+      this.isCreatingOrEditing = false;
+    },
+    /**
+     * Change users state, setup the editing area if editing and focus the input
+     * @param {string} action
+     */
+    openCreateOrEdit(action) {
+      if (action === 'edit') {
+        this.setEditTask();
+      } else if (action === 'create') {
+        this.isCreating = true;
+      }
+
+      this.isCreatingOrEditing = true;
+
       this.$nextTick(() => {
         this.$refs[`create-todo-${this.dayName.toLowerCase()}`].focus();
       });
@@ -331,7 +323,7 @@ export default {
   display: flex;
   align-items: center;
 }
-input[type="checkbox"] {
+input[type='checkbox'] {
   width: 18px;
   height: 18px;
   margin-right: 1rem;
