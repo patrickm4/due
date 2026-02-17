@@ -51,6 +51,7 @@ After observations on very quick, limited testing, suggestions and my findings:
 - [ ] Migrate update.js to use vite pwa plugin
 - [ ] After v1 deploy, write protect master branch
 - [ ] Drag to move rearrange tasks
+- [ ] Install and use JSDoc
 - [x] Switch from localstorage to indexedDB 2026-02-16 PR #17
 - [x] Migrate VUE CLI to Vite 2026-02-15 PR #16
 
