@@ -46,12 +46,6 @@ export default {
       // logs: []
     };
   },
-  // setup() {
-  //   return {
-  //     db,
-  //     // todos: useObservable(liveQuery(() => db.tasks.toArray())),
-  //   };
-  // },
   mounted() {
     this.getTasks();
   },
@@ -62,16 +56,7 @@ export default {
       this.separateTasks();
     },
     separateTasks() {
-      // const nonParsedTodos = window.localStorage.getItem('todos');
-
-      // if (nonParsedTodos) {
-      // const todos = JSON.parse(nonParsedTodos);
-      // console.log('check todos', this.todos);
-      // const todos = structuredClone(this.todos);
-
       if (!this.todos) return;
-
-      // this.checkLengthTest = todos ? todos.length : -1
 
       let todayTs = [];
       let tomorrowTs = [];
