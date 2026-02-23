@@ -48,7 +48,7 @@ After observations on very quick, limited testing, suggestions and my findings:
 
 2026
 
-- [ ] Migrate update.js to use vite pwa plugin
+- [x] Migrate update.js to use vite pwa plugin 2026-02-22 PR #18
 - [ ] After v1 deploy, write protect master branch
 - [ ] Drag to move rearrange tasks
 - [ ] Install and use JSDoc
