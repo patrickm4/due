@@ -2,8 +2,7 @@
   <div>
     <div class="top-bar">
       <div>
-        <!-- TODO get package.json verison -->
-        v0.3.0
+        v{{ version }}
         <!-- for mobile testing -->
         <!-- TEST CHECK:{{ checkLengthTest }} logs: {{ logs }}  -->
       </div>
@@ -23,8 +22,8 @@
 <script>
 import VueScrollSnap from 'vue-scroll-snap';
 import Day from './components/Day.vue';
-import update from './mixins/update.js';
 import { todoRepository } from '@/db/repository.js';
+import { updateSW } from '@/composables/update.js';
 
 export default {
   name: 'App',
@@ -32,7 +31,6 @@ export default {
     Day,
     VueScrollSnap,
   },
-  mixins: [update],
   data() {
     return {
       mouseDown: false,
@@ -41,15 +39,25 @@ export default {
       todayTodos: [],
       tomorrowTodos: [],
       somedayTodos: [],
+      version: __APP_VERSION__,
       // below 2 vars for mobile testing
       // checkLengthTest: 0,
       // logs: []
     };
   },
+  created() {
+    window.addEventListener('pwa-update-available', () => {
+      this.updateExists = true;
+    });
+  },
   mounted() {
     this.getTasks();
   },
   methods: {
+    refreshApp() {
+      this.updateExists = false;
+      updateSW(true); // activate new SW + reload
+    },
     async getTasks() {
       const todos = await todoRepository.getAll();
       this.todos = structuredClone(todos);
@@ -122,12 +130,12 @@ export default {
         }
 
         // **TODO** **BUG** on mobile due_date is saving as "30/05/2023, 22:19:35" instead of "05/30/2023, 10:19:35 PM"
+        // 2026-02-22, after v1, need to confirm the above is still a bug
       }
 
       this.todayTodos = todayTs;
       this.tomorrowTodos = tomorrowTs;
       this.somedayTodos = somedayTs;
-      // }
 
       // for someday, decrement the timing for switching the task/goal to tomorrow, then save back to localstorage
     },

@@ -1,15 +1,22 @@
-import { defineConfig } from 'vite';
+import pkg from './package.json';
 import vue from '@vitejs/plugin-vue';
+import { defineConfig } from 'vite';
 import { fileURLToPath, URL } from 'node:url';
 import { VitePWA } from 'vite-plugin-pwa';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   base: process.env.NODE_ENV === 'production' ? '/due/' : '/',
+  define: {
+    __APP_VERSION__: JSON.stringify(pkg.version),
+  },
   plugins: [
     vue(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
+      devOptions: {
+        enabled: true,
+      },
       manifest: {
         name: 'Due',
         short_name: 'App',
