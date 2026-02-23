@@ -15,7 +15,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'prompt',
       devOptions: {
-        enabled: true,
+        enabled: false, // enable to see service worker registration locally
       },
       manifest: {
         name: 'Due',
