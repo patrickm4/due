@@ -12,9 +12,9 @@
       </div>
     </div>
     <vue-scroll-snap :fullscreen="true" :horizontal="true">
-      <Day class="item" :items="todayTodos" day-name="Today" @reloadCache="getTasks"></Day>
-      <Day class="item" :items="tomorrowTodos" day-name="Tomorrow" @reloadCache="getTasks"></Day>
-      <Day class="item" :items="somedayTodos" day-name="Someday" @reloadCache="getTasks"></Day>
+      <Day class="item" :items="todayTodos" day-name="Today" @reloadCache="getTasks" @update:items="todayTodos = $event"></Day>
+      <Day class="item" :items="tomorrowTodos" day-name="Tomorrow" @reloadCache="getTasks" @update:items="tomorrowTodos = $event"></Day>
+      <Day class="item" :items="somedayTodos" day-name="Someday" @reloadCache="getTasks" @update:items="somedayTodos = $event"></Day>
     </vue-scroll-snap>
   </div>
 </template>
@@ -24,6 +24,7 @@ import VueScrollSnap from 'vue-scroll-snap';
 import Day from './components/Day.vue';
 import { todoRepository } from '@/db/repository.js';
 import { updateSW } from '@/composables/update.js';
+import { sortBy } from 'lodash';
 
 export default {
   name: 'App',
@@ -60,6 +61,8 @@ export default {
     },
     async getTasks() {
       const todos = await todoRepository.getAll();
+      console.log('todossss', todos)
+      // const todos = await todoRepository.sortBy('createdAt');
       this.todos = structuredClone(todos);
       this.separateTasks();
     },
@@ -133,9 +136,9 @@ export default {
         // 2026-02-22, after v1, need to confirm the above is still a bug
       }
 
-      this.todayTodos = todayTs;
-      this.tomorrowTodos = tomorrowTs;
-      this.somedayTodos = somedayTs;
+      this.todayTodos = sortBy(todayTs, ['createdBy']);
+      this.tomorrowTodos = sortBy(tomorrowTs, ['createdBy']);
+      this.somedayTodos = sortBy(somedayTs, ['createdBy']);
 
       // for someday, decrement the timing for switching the task/goal to tomorrow, then save back to localstorage
     },
