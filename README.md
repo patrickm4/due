@@ -40,7 +40,6 @@ Following these Vue PWA guides:
 
 After observations on very quick, limited testing, suggestions and my findings:
 
-- [ ] Tap and hold to move tasks?
 - [ ] Click anywhere to create task
 - [ ] Indications that task can be clicked
 - [ ] indicator that scroll left and right to another day is possible
@@ -49,8 +48,7 @@ After observations on very quick, limited testing, suggestions and my findings:
 2026
 
 - [x] Migrate update.js to use vite pwa plugin 2026-02-22 PR #18
-- [ ] After v1 deploy, write protect master branch
-- [ ] Drag to move rearrange tasks
+- [x] Drag to move rearrange tasks 2026-03-21 PR #22
 - [ ] Install and use JSDoc
 - [x] Switch from localstorage to indexedDB 2026-02-16 PR #17
 - [x] Migrate VUE CLI to Vite 2026-02-15 PR #16

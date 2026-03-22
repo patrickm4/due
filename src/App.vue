@@ -12,9 +12,30 @@
       </div>
     </div>
     <vue-scroll-snap :fullscreen="true" :horizontal="true">
-      <Day class="item" :items="todayTodos" day-name="Today" @reloadCache="getTasks"></Day>
-      <Day class="item" :items="tomorrowTodos" day-name="Tomorrow" @reloadCache="getTasks"></Day>
-      <Day class="item" :items="somedayTodos" day-name="Someday" @reloadCache="getTasks"></Day>
+      <Day
+        class="item"
+        :items="todayTodos"
+        day-name="Today"
+        @updateOtherDay="updateOtherDay"
+        @reloadCache="getTasks"
+        @update:items="updateDayList"
+      ></Day>
+      <Day
+        class="item"
+        :items="tomorrowTodos"
+        day-name="Tomorrow"
+        @updateOtherDay="updateOtherDay"
+        @reloadCache="getTasks"
+        @update:items="updateDayList"
+      ></Day>
+      <Day
+        class="item"
+        :items="somedayTodos"
+        day-name="Someday"
+        @updateOtherDay="updateOtherDay"
+        @reloadCache="getTasks"
+        @update:items="updateDayList"
+      ></Day>
     </vue-scroll-snap>
   </div>
 </template>
@@ -24,6 +45,8 @@ import VueScrollSnap from 'vue-scroll-snap';
 import Day from './components/Day.vue';
 import { todoRepository } from '@/db/repository.js';
 import { updateSW } from '@/composables/update.js';
+import { sortBy } from 'lodash';
+import { helper } from '@/composables/helpers.js';
 
 export default {
   name: 'App',
@@ -54,6 +77,27 @@ export default {
     this.getTasks();
   },
   methods: {
+    /**
+     * Move a task to another day, put it at the top, update all the positions
+     * @param day
+     * @param task
+     */
+    updateOtherDay(day, task) {
+      if (day === 'tomorrow') {
+        this.tomorrowTodos.unshift(task);
+        this.updateDayList(helper.updatePositions(this.tomorrowTodos));
+      } else if (day === 'someday') {
+        this.somedayTodos.unshift(task);
+        this.updateDayList(helper.updatePositions(this.somedayTodos));
+      } else if (day === 'today') {
+        this.todayTodos.unshift(task);
+        this.updateDayList(helper.updatePositions(this.todayTodos));
+      }
+    },
+    async updateDayList(updatedList) {
+      await todoRepository.bulkPut(updatedList);
+      this.getTasks();
+    },
     refreshApp() {
       this.updateExists = false;
       updateSW(true); // activate new SW + reload
@@ -133,9 +177,9 @@ export default {
         // 2026-02-22, after v1, need to confirm the above is still a bug
       }
 
-      this.todayTodos = todayTs;
-      this.tomorrowTodos = tomorrowTs;
-      this.somedayTodos = somedayTs;
+      this.todayTodos = sortBy(todayTs, ['position']);
+      this.tomorrowTodos = sortBy(tomorrowTs, ['position']);
+      this.somedayTodos = sortBy(somedayTs, ['position']);
 
       // for someday, decrement the timing for switching the task/goal to tomorrow, then save back to localstorage
     },
