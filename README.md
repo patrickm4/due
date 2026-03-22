@@ -30,7 +30,7 @@ Following these Vue PWA guides:
 - [ ] Options menu, three dots, top right fixed positon, About and Settings
 - [x] Add darker bg color. lighter font color
 - [ ] add name top left. - with logo?
-- [ ] Make quick logo
+- [x] Make quick logo - Feb 2026
 - [x] Light grey color for checked off tasks
 - [ ] Option to remove completed tasks, maybe an archive tab?
 - [ ] Add how long ago task was added, option to show this or not.
