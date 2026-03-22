@@ -1,9 +1,9 @@
 <template>
   <div class="page-day">
     <template v-if="!isCreatingOrEditing">
-      <h1>{{ dayName }}</h1>      
+      <h1>{{ dayName }}</h1>
       <div v-if="todos && todos.length" class="todos-container">
-        <VueDraggable v-model="todos">
+        <VueDraggable v-model="todos" :animation="150" @start="isUpdatingPosition = true">
           <div
             v-for="(todo, index) in todos"
             :key="todo.id"
@@ -91,11 +91,12 @@
 import { v4 as uuidv4 } from 'uuid';
 import { todoRepository } from '@/db/repository.js';
 import { cloneDeep } from 'lodash';
-import { VueDraggable } from 'vue-draggable-plus'
+import { VueDraggable } from 'vue-draggable-plus';
+import { helper } from '@/composables/helpers.js';
 
 export default {
-  components: {VueDraggable},
-  emits: ['update:items'],
+  components: { VueDraggable },
+  emits: ['updateOtherDay', 'update:items', 'reloadCache'],
   props: {
     items: {
       type: Array,
@@ -117,16 +118,24 @@ export default {
       selectedTaskId: '',
       isEditingTask: false,
       isCreatingOrEditing: false,
+      isUpdatingPosition: false,
     };
   },
   computed: {
     todos: {
       get() {
-        return this.items
+        return this.items;
       },
       set(value) {
-        this.$emit('update:items', value)
-      }
+        let savingValue = value;
+
+        if (this.isUpdatingPosition) {
+          savingValue = helper.updatePositions(value);
+          this.isUpdatingPosition = false;
+        }
+
+        this.$emit('update:items', savingValue);
+      },
     },
     otherDays() {
       const allDays = ['someday', 'today', 'tomorrow'];
@@ -183,14 +192,15 @@ export default {
         }
       }
 
-      await todoRepository.update(this.selectedTaskId, {
-        dueDate: time.toLocaleString('en-US', {
-          timeZone: timezone,
-        }),
+      const todo = cloneDeep(this.todos.find((t) => t.id === this.selectedTaskId));
+
+      todo.dueDate = time.toLocaleString('en-US', {
+        timeZone: timezone,
       });
 
       this.selectedTaskId = '';
-      this.$emit('reloadCache');
+
+      this.$emit('updateOtherDay', day, todo);
     },
     /**
      * Delete the selected task and grab fresh data
@@ -269,9 +279,15 @@ export default {
             timeZone: timezone,
           }),
           meta,
+          position: 0,
         };
 
-        await todoRepository.add(newTodo);
+        const updatedPositionsList = this.todos.map((todo) => {
+          todo.position += 1;
+          return todo;
+        });
+
+        await todoRepository.bulkPut([newTodo, ...updatedPositionsList]);
 
         this.newTodo = '';
         this.isCreating = false;

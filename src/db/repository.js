@@ -15,8 +15,12 @@ export const todoRepository = {
   },
 
   put(obj) {
-    console.log(obj);
     return db.tasks.put(Dexie.deepClone(obj));
+  },
+
+  bulkPut(array) {
+    const payload = array.map((a) => Dexie.deepClone(a));
+    return db.tasks.bulkPut(payload);
   },
 
   delete(id) {
