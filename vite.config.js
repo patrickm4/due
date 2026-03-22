@@ -19,7 +19,7 @@ export default defineConfig({
       },
       manifest: {
         name: 'Due',
-        short_name: 'App',
+        short_name: 'Due',
         start_url: '/due/',
         display: 'standalone',
         theme_color: '#ffffff',

@@ -1,9 +1,18 @@
 <template>
   <div class="page-day">
     <template v-if="!isCreatingOrEditing">
-      <h1>{{ dayName }}</h1>
+      <div class="header">
+        <h1>{{ dayName }}</h1>
+        <span class="add-font" @click="openCreateOrEdit('create')">+</span>
+      </div>
       <div v-if="todos && todos.length" class="todos-container">
-        <VueDraggable v-model="todos" :animation="150" @start="isUpdatingPosition = true">
+        <VueDraggable
+          v-model="todos"
+          handle=".drag-handle"
+          dragClass="drag-item"
+          :animation="150"
+          @start="isUpdatingPosition = true"
+        >
           <div
             v-for="(todo, index) in todos"
             :key="todo.id"
@@ -14,21 +23,26 @@
               class="tick-and-text-container"
               :class="[selectedTaskId === todo.id ? 'border-active-task' : '']"
             >
-              <label>
-                <input
-                  type="checkbox"
-                  :checked="todo.isCompleted"
-                  @click.stop
-                  @change="updateChecked(todo.id, todo.isCompleted)"
-                />
-              </label>
-              <span class="todo-text" :class="{ 'dark-and-strike-through': todo.isCompleted }">{{
-                todo.taskName
-              }}</span>
+              <div>
+                <label>
+                  <input
+                    type="checkbox"
+                    :checked="todo.isCompleted"
+                    @click.stop
+                    @change="updateChecked(todo.id, todo.isCompleted)"
+                  />
+                </label>
+                <span class="todo-text" :class="{ 'dark-and-strike-through': todo.isCompleted }">{{
+                  todo.taskName
+                }}</span>
+              </div>
+              <span class="drag-handle">
+                <img src="/drag-handle.svg" class="drag-handle" />
+              </span>
             </div>
             <div v-if="selectedTaskId === todo.id" class="task-dropdown">
               <div class="task-actions-container">
-                <button @click.stop="openCreateOrEdit('edit')">Edit</button>
+                <button @click.stop="deleteTask">Delete</button>
                 <button
                   v-for="otherDay in otherDays"
                   :key="todo.id + otherDay"
@@ -36,7 +50,7 @@
                 >
                   Do it {{ otherDay }}
                 </button>
-                <button @click.stop="deleteTask">Delete</button>
+                <button @click.stop="openCreateOrEdit('edit')">Edit</button>
               </div>
             </div>
           </div>
@@ -44,15 +58,6 @@
       </div>
       <div v-else class="todos-container" @click="openCreateOrEdit('create')">
         <span class="what-to-do-text">What to do {{ dayName.toLowerCase() }}...</span>
-      </div>
-      <div class="add-todo-btn">
-        <!-- maybe dont show this if no task this day? -->
-        <span class="add-font" @click="openCreateOrEdit('create')">+</span>
-        <!-- 
-            other options
-            remove completed items
-            about
-           -->
       </div>
     </template>
     <template v-else>
@@ -76,8 +81,6 @@
             @keyup.enter="createOrEditTodo"
             :ref="`create-todo-${dayName.toLowerCase()}`"
           />
-        </div>
-        <div>
           <button class="create-task-btn" @click="createOrEditTodo">
             {{ isCreating ? 'Create' : 'Edit' }}
           </button>
@@ -346,6 +349,7 @@ export default {
 .tick-and-text-container {
   display: flex;
   align-items: center;
+  justify-content: space-between;
 }
 input[type='checkbox'] {
   width: 18px;
@@ -406,14 +410,8 @@ input[type='checkbox'] {
   height: 80vh;
 }
 .add-font {
-  font-size: 36pt;
-}
-.add-todo-btn {
-  position: absolute;
-  bottom: 5%;
-  display: flex;
-  justify-content: center;
-  width: 100%;
+  font-size: 24pt;
+  margin-right: 20px;
 }
 .task-actions-container {
   display: flex;
@@ -438,5 +436,17 @@ input[type='checkbox'] {
   color: #eee;
   border-style: solid;
   border-width: 1px;
+  margin-top: 25px;
+}
+.drag-handle {
+  height: 30px;
+}
+.drag-item {
+  background-color: rgb(83, 53, 218);
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 </style>
