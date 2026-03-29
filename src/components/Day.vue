@@ -40,19 +40,22 @@
                 <img src="/drag-handle.svg" class="drag-handle" />
               </span>
             </div>
-            <div v-if="selectedTaskId === todo.id" class="task-dropdown">
-              <div class="task-actions-container">
-                <button @click.stop="deleteTask">Delete</button>
-                <button
-                  v-for="otherDay in otherDays"
-                  :key="todo.id + otherDay"
-                  @click.stop="changeTaskDay(otherDay)"
-                >
-                  Do it {{ otherDay }}
-                </button>
-                <button @click.stop="openCreateOrEdit('edit')">Edit</button>
+            <template v-if="selectedTaskId === todo.id">
+              <div class="days-added-box">{{ daysSinceAdded(todo) }}</div>
+              <div class="task-dropdown">
+                <div class="task-actions-container">
+                  <button @click.stop="deleteTask">Delete</button>
+                  <button
+                    v-for="otherDay in otherDays"
+                    :key="todo.id + otherDay"
+                    @click.stop="changeTaskDay(otherDay)"
+                  >
+                    Do it {{ otherDay }}
+                  </button>
+                  <button @click.stop="openCreateOrEdit('edit')">Edit</button>
+                </div>
               </div>
-            </div>
+            </template>
           </div>
         </VueDraggable>
       </div>
@@ -146,6 +149,25 @@ export default {
     },
   },
   methods: {
+    daysSinceAdded(row) {
+      const today = new Date();
+      const created = new Date(row.createdAt);
+      const millisecondsPerDay = 1000 * 60 * 60 * 24;
+      const diffInDays = Math.trunc((today - created) / millisecondsPerDay);
+      let message = '';
+
+      if (diffInDays === 0) {
+        message = 'Created Today';
+      } else if (diffInDays > 0) {
+        if (diffInDays === 1) {
+          message = 'Created yesterday';
+        } else {
+          message = `Created ${diffInDays} days ago`;
+        }
+      }
+
+      return message;
+    },
     ToggleTaskActions(taskId) {
       !this.selectedTaskId || this.selectedTaskId !== taskId
         ? (this.selectedTaskId = taskId)
@@ -343,7 +365,7 @@ export default {
 }
 .border-active-task {
   border-top: 1px solid #505662;
-  padding: 0.25rem 0 0.5rem 0;
+  padding: 0.25rem 0 0 0;
   margin-top: 0.5rem;
 }
 .tick-and-text-container {
@@ -448,5 +470,9 @@ input[type='checkbox'] {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+.days-added-box {
+  margin: 0.25rem 0 1rem 0;
+  color: #3ca78a;
 }
 </style>
