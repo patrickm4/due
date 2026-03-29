@@ -36,7 +36,7 @@
                   todo.taskName
                 }}</span>
               </div>
-              <span class="drag-handle">
+              <span v-if="todos?.length > 1" class="drag-handle">
                 <img src="/drag-handle.svg" class="drag-handle" />
               </span>
             </div>
