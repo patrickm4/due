@@ -3,7 +3,27 @@
     <template v-if="!isCreatingOrEditing">
       <div class="header">
         <h1>{{ dayName }}</h1>
-        <span class="add-font" @click="openCreateOrEdit('create')">+</span>
+        <div style="position: relative">
+          <span class="add-font" @click="openCreateOrEdit('create')">+</span>
+          <span
+            v-if="!isOptionsDropdownActive"
+            class="add-font option-ellipsis"
+            @click.stop="isOptionsDropdownActive = true"
+            >⋯</span
+          >
+          <span
+            v-if="isOptionsDropdownActive"
+            class="add-font option-ellipsis option-ellipsis-active"
+            @click="isOptionsDropdownActive = false"
+            >⋯</span
+          >
+          <div ref="dropdownMenu">
+            <OptionsDropdown
+              v-if="isOptionsDropdownActive"
+              @closeChecked="openConfirmDelete('multi')"
+            />
+          </div>
+        </div>
       </div>
       <div v-if="todos && todos.length" class="todos-container">
         <VueDraggable
@@ -44,7 +64,7 @@
               <div class="days-added-box">{{ daysSinceAdded(todo) }}</div>
               <div class="task-dropdown">
                 <div class="task-actions-container">
-                  <button @click.stop="deleteTask">Delete</button>
+                  <button @click.stop="openConfirmDelete('single')">Delete</button>
                   <button
                     v-for="otherDay in otherDays"
                     :key="todo.id + otherDay"
@@ -90,10 +110,15 @@
         </div>
       </div>
     </template>
+    <DeletePromptDialog ref="deletePrompt" @confirm="confirmDelete" :deleteType="deleteType" />
+
+    <div v-if="isToastin" class="toast">No Completed Tasks To Delete</div>
   </div>
 </template>
 
 <script>
+import DeletePromptDialog from './DeletePromptDialog.vue';
+import OptionsDropdown from './OptionsDropdown.vue';
 import { v4 as uuidv4 } from 'uuid';
 import { todoRepository } from '@/db/repository.js';
 import { cloneDeep } from 'lodash';
@@ -101,7 +126,7 @@ import { VueDraggable } from 'vue-draggable-plus';
 import { helper } from '@/composables/helpers.js';
 
 export default {
-  components: { VueDraggable },
+  components: { DeletePromptDialog, OptionsDropdown, VueDraggable },
   emits: ['updateOtherDay', 'update:items', 'reloadCache'],
   props: {
     items: {
@@ -125,7 +150,16 @@ export default {
       isEditingTask: false,
       isCreatingOrEditing: false,
       isUpdatingPosition: false,
+      isOptionsDropdownActive: false,
+      deleteType: '',
+      isToastin: false,
     };
+  },
+  mounted() {
+    document.addEventListener('click', this.closeIfClickedOutside);
+  },
+  beforeUnmount() {
+    document.removeEventListener('click', this.closeIfClickedOutside);
   },
   computed: {
     todos: {
@@ -147,8 +181,42 @@ export default {
       const allDays = ['someday', 'today', 'tomorrow'];
       return allDays.filter((d) => d !== this.dayName.toLowerCase());
     },
+    checkedTasks() {
+      return this.todos.filter((todo) => todo.isCompleted);
+    },
   },
   methods: {
+    closeIfClickedOutside(event) {
+      if (this.isOptionsDropdownActive && !this.$refs.dropdownMenu.contains(event.target)) {
+        this.isOptionsDropdownActive = false;
+      }
+    },
+    confirmDelete() {
+      if (this.deleteType === 'multi') {
+        this.closeChecked();
+      } else {
+        this.deleteTask();
+      }
+    },
+    openConfirmDelete(type = '') {
+      if (type === 'multi') {
+        if (this.checkedTasks?.length === 0) {
+          this.isToastin = true;
+          setTimeout(() => {
+            this.isToastin = false;
+          }, 3000);
+          return;
+        }
+      }
+      this.deleteType = type;
+      this.$refs.deletePrompt.openDialog();
+    },
+    async closeChecked() {
+      const idsToClose = this.checkedTasks.map((task) => task.id);
+
+      await todoRepository.bulkDelete(idsToClose);
+      this.$emit('reloadCache');
+    },
     daysSinceAdded(row) {
       const today = new Date();
       const created = new Date(row.createdAt);
@@ -474,5 +542,25 @@ input[type='checkbox'] {
 .days-added-box {
   margin: 0.25rem 0 1rem 0;
   color: #3ca78a;
+}
+.option-ellipsis {
+  padding: 0.5rem;
+}
+.option-ellipsis-active {
+  background-color: aquamarine;
+  color: black !important;
+}
+
+.toast {
+  background: #2c3e50;
+  padding: 1.5rem;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70vw;
+  border-radius: 6px;
 }
 </style>
