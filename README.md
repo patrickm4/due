@@ -49,10 +49,10 @@ After observations on very quick, limited testing, suggestions and my findings:
 
 - [x] Migrate update.js to use vite pwa plugin 2026-02-22 PR #18
 - [x] Drag to move rearrange tasks 2026-03-21 PR #22
-- [ ] Install and use JSDoc
 - [x] Switch from localstorage to indexedDB 2026-02-16 PR #17
 - [x] Migrate VUE CLI to Vite 2026-02-15 PR #16
 - [ ] Set notifications to go off a a certain time to start a task
+- [ ] Save a history of completed tasks
 
 ## Project setup
 
