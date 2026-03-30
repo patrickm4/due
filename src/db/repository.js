@@ -26,4 +26,8 @@ export const todoRepository = {
   delete(id) {
     return db.tasks.delete(id);
   },
+
+  bulkDelete(array) {
+    return db.tasks.bulkDelete(array);
+  },
 };

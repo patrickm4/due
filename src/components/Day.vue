@@ -3,7 +3,27 @@
     <template v-if="!isCreatingOrEditing">
       <div class="header">
         <h1>{{ dayName }}</h1>
-        <span class="add-font" @click="openCreateOrEdit('create')">+</span>
+        <div style="position: relative">
+          <span class="add-font" @click="openCreateOrEdit('create')">+</span>
+          <span
+            v-if="!isOptionsDropdownActive"
+            class="add-font option-ellipsis"
+            @click.stop="isOptionsDropdownActive = true"
+            >⋯</span
+          >
+          <span
+            v-if="isOptionsDropdownActive"
+            class="add-font option-ellipsis option-ellipsis-active"
+            @click="isOptionsDropdownActive = false"
+            >⋯</span
+          >
+          <div ref="dropdownMenu">
+            <OptionsDropdown
+              v-if="isOptionsDropdownActive"
+              @closeChecked="openConfirmDelete('multi')"
+            />
+          </div>
+        </div>
       </div>
       <div v-if="todos && todos.length" class="todos-container">
         <VueDraggable
@@ -36,23 +56,26 @@
                   todo.taskName
                 }}</span>
               </div>
-              <span class="drag-handle">
+              <span v-if="todos?.length > 1" class="drag-handle">
                 <img src="/drag-handle.svg" class="drag-handle" />
               </span>
             </div>
-            <div v-if="selectedTaskId === todo.id" class="task-dropdown">
-              <div class="task-actions-container">
-                <button @click.stop="deleteTask">Delete</button>
-                <button
-                  v-for="otherDay in otherDays"
-                  :key="todo.id + otherDay"
-                  @click.stop="changeTaskDay(otherDay)"
-                >
-                  Do it {{ otherDay }}
-                </button>
-                <button @click.stop="openCreateOrEdit('edit')">Edit</button>
+            <template v-if="selectedTaskId === todo.id">
+              <div class="days-added-box">{{ daysSinceAdded(todo) }}</div>
+              <div class="task-dropdown">
+                <div class="task-actions-container">
+                  <button @click.stop="openConfirmDelete('single')">Delete</button>
+                  <button
+                    v-for="otherDay in otherDays"
+                    :key="todo.id + otherDay"
+                    @click.stop="changeTaskDay(otherDay)"
+                  >
+                    Do it {{ otherDay }}
+                  </button>
+                  <button @click.stop="openCreateOrEdit('edit')">Edit</button>
+                </div>
               </div>
-            </div>
+            </template>
           </div>
         </VueDraggable>
       </div>
@@ -87,10 +110,15 @@
         </div>
       </div>
     </template>
+    <DeletePromptDialog ref="deletePrompt" @confirm="confirmDelete" :deleteType="deleteType" />
+
+    <div v-if="isToastin" class="toast">No Completed Tasks To Delete</div>
   </div>
 </template>
 
 <script>
+import DeletePromptDialog from './DeletePromptDialog.vue';
+import OptionsDropdown from './OptionsDropdown.vue';
 import { v4 as uuidv4 } from 'uuid';
 import { todoRepository } from '@/db/repository.js';
 import { cloneDeep } from 'lodash';
@@ -98,7 +126,7 @@ import { VueDraggable } from 'vue-draggable-plus';
 import { helper } from '@/composables/helpers.js';
 
 export default {
-  components: { VueDraggable },
+  components: { DeletePromptDialog, OptionsDropdown, VueDraggable },
   emits: ['updateOtherDay', 'update:items', 'reloadCache'],
   props: {
     items: {
@@ -122,7 +150,16 @@ export default {
       isEditingTask: false,
       isCreatingOrEditing: false,
       isUpdatingPosition: false,
+      isOptionsDropdownActive: false,
+      deleteType: '',
+      isToastin: false,
     };
+  },
+  mounted() {
+    document.addEventListener('click', this.closeIfClickedOutside);
+  },
+  beforeUnmount() {
+    document.removeEventListener('click', this.closeIfClickedOutside);
   },
   computed: {
     todos: {
@@ -144,8 +181,61 @@ export default {
       const allDays = ['someday', 'today', 'tomorrow'];
       return allDays.filter((d) => d !== this.dayName.toLowerCase());
     },
+    checkedTasks() {
+      return this.todos.filter((todo) => todo.isCompleted);
+    },
   },
   methods: {
+    closeIfClickedOutside(event) {
+      if (this.isOptionsDropdownActive && !this.$refs.dropdownMenu.contains(event.target)) {
+        this.isOptionsDropdownActive = false;
+      }
+    },
+    confirmDelete() {
+      if (this.deleteType === 'multi') {
+        this.closeChecked();
+      } else {
+        this.deleteTask();
+      }
+    },
+    openConfirmDelete(type = '') {
+      if (type === 'multi') {
+        if (this.checkedTasks?.length === 0) {
+          this.isToastin = true;
+          setTimeout(() => {
+            this.isToastin = false;
+          }, 3000);
+          return;
+        }
+      }
+      this.deleteType = type;
+      this.$refs.deletePrompt.openDialog();
+    },
+    async closeChecked() {
+      const idsToClose = this.checkedTasks.map((task) => task.id);
+
+      await todoRepository.bulkDelete(idsToClose);
+      this.$emit('reloadCache');
+    },
+    daysSinceAdded(row) {
+      const today = new Date();
+      const created = new Date(row.createdAt);
+      const millisecondsPerDay = 1000 * 60 * 60 * 24;
+      const diffInDays = Math.trunc((today - created) / millisecondsPerDay);
+      let message = '';
+
+      if (diffInDays === 0) {
+        message = 'Created Today';
+      } else if (diffInDays > 0) {
+        if (diffInDays === 1) {
+          message = 'Created yesterday';
+        } else {
+          message = `Created ${diffInDays} days ago`;
+        }
+      }
+
+      return message;
+    },
     ToggleTaskActions(taskId) {
       !this.selectedTaskId || this.selectedTaskId !== taskId
         ? (this.selectedTaskId = taskId)
@@ -343,7 +433,7 @@ export default {
 }
 .border-active-task {
   border-top: 1px solid #505662;
-  padding: 0.25rem 0 0.5rem 0;
+  padding: 0.25rem 0 0 0;
   margin-top: 0.5rem;
 }
 .tick-and-text-container {
@@ -448,5 +538,29 @@ input[type='checkbox'] {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+.days-added-box {
+  margin: 0.25rem 0 1rem 0;
+  color: #3ca78a;
+}
+.option-ellipsis {
+  padding: 0.5rem;
+}
+.option-ellipsis-active {
+  background-color: aquamarine;
+  color: black !important;
+}
+
+.toast {
+  background: #2c3e50;
+  padding: 1.5rem;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70vw;
+  border-radius: 6px;
 }
 </style>
