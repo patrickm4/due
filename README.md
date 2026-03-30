@@ -27,13 +27,13 @@ Following these Vue PWA guides:
 - [x] Make checkmarks, text, and task buttons bigger
 - [x] Move tomorrow task to today by time
 - [x] Move somedays into tomorrow with a arbitrary time function
-- [ ] Options menu, three dots, top right fixed positon, About and Settings
+- [ ] Options menu, have About and Settings options
 - [x] Add darker bg color. lighter font color
 - [ ] add name top left. - with logo?
 - [x] Make quick logo - Feb 2026
 - [x] Light grey color for checked off tasks
-- [ ] Option to remove completed tasks, maybe an archive tab?
-- [ ] Add how long ago task was added, option to show this or not.
+- [x] Option to remove completed tasks 2026-03-29 PR #23
+- [x] Add how long ago task was added 2026-03-29 PR #23
 - [ ] Change task array into map with task.id as key
 
 - [x] Deploy to patrickmoreno.ca/due
@@ -52,6 +52,7 @@ After observations on very quick, limited testing, suggestions and my findings:
 - [ ] Install and use JSDoc
 - [x] Switch from localstorage to indexedDB 2026-02-16 PR #17
 - [x] Migrate VUE CLI to Vite 2026-02-15 PR #16
+- [ ] Set notifications to go off a a certain time to start a task
 
 ## Project setup
 
