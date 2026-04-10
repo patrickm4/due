@@ -13,7 +13,7 @@
   "dependencies": {
     "@vueuse/rxjs": "^14.2.1",
     "dexie": "^4.3.0",
-    "lodash": "^4.17.23",
+    "lodash": "^4.18.1",
     "register-service-worker": "^1.7.1",
     "rxjs": "^7.8.2",
     "uuid": "^9.0.0",
